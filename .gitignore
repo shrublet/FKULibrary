@@ -1,2 +1,4 @@
-# Miscellaneous files
-ComicInfo.xml
+*.exe
+*.dll
+*.lnk
+profiles/

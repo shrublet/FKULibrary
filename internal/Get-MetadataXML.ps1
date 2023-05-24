@@ -1,71 +1,76 @@
 function Get-MetadataXML {
-        [CmdletBinding()]
-        param(
-                [Parameter(Mandatory = $true)]
-                [String]$WebRequest,
-                [Parameter(Mandatory = $true)]
-                [ValidateSet('Fakku', 'PandaChaika')]
-                [String]$Scraper,
-                [Parameter(Mandatory = $true)]
-                [String]$URL
-        )
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [String]$WebRequest,
 
-        switch ($Scraper) {
-                'Fakku' {
-                        $Title = Get-FakkuTitle -Webrequest $WebRequest
-                        $Series = Get-FakkuSeries -WebRequest $WebRequest
-                        $Summary = Get-FakkuSummary -WebRequest $WebRequest
-                        $Artist = Get-FakkuArtist -WebRequest $WebRequest
-                        $Publisher = Get-FakkuPublisher -WebRequest $WebRequest
-                        $Genres = Get-FakkuGenres -WebRequest $WebRequest
-                        $Parody = Get-FakkuParody -WebRequest $WebRequest
-                }
+        [Parameter(Mandatory = $true)]
+        [String]$Url,
 
-                'PandaChaika' {
-                        $Title = Get-PandaChaikaTitle -Webrequest $WebRequest
-                        $Series = Get-PandaChaikaSeries -WebRequest $WebRequest
-                        $Summary = Get-PandaChaikaSummary -WebRequest $WebRequest
-                        $Artist = Get-PandaChaikaArtist -WebRequest $WebRequest
-                        $Publisher = Get-PandaChaikaPublisher -WebRequest $WebRequest
-                        $Genres = Get-PandaChaikaGenres -WebRequest $WebRequest
-                }
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Fakku', 'Panda')]
+        [String]$Provider = 'Fakku'
+    )
+    switch ($Provider) {
+        'Fakku' {
+            $Title = Get-FakkuTitle -Webrequest $WebRequest
+            $Series = Get-FakkuSeries -WebRequest $WebRequest
+            $SeriesNumber = Get-FakkuVolume -WebRequest $WebRequest -Url $Url
+            $Group = Get-FakkuGroup -WebRequest $WebRequest
+            $Summary = Get-FakkuSummary -WebRequest $WebRequest
+            $Artist = Get-FakkuArtist -WebRequest $WebRequest
+            $Circle = Get-FakkuCircle -WebRequest $WebRequest
+            $Publisher = Get-FakkuPublisher -WebRequest $WebRequest
+            $Genres = Get-FakkuGenres -WebRequest $WebRequest
+            $Parody = Get-FakkuParody -WebRequest $WebRequest
         }
 
-        # Tries to derive Year/Month from a given comic's name
-        if ($Series -match "\b\d{4}\b-\b\d{2}\b") {
-                $Year = $Series.Substring($series.Length - 7, 4)
-                $Year = "`n  <Year>$Year</Year>"
-                $Month = $Series.Substring($series.Length - 2)
-                $Month = "`n  <Month>$Month</Month>"
-        } 
-
-        elseif ($Series -match "\b\d{4}\b") {
-                $Year = $matches[0]
-                $Year = "`n  <Year>$Year</Year>"
-                $Month = ""
-        } 
-        
-        else {
-                $Year = $Month = ""
+        'Panda' {
+            $Title = Get-PandaTitle -Webrequest $WebRequest
+            $Group = Get-PandaSeries -WebRequest $WebRequest
+            $Summary = Get-PandaSummary -WebRequest $WebRequest
+            $Artist = Get-PandaArtist -WebRequest $WebRequest
+            $Publisher = Get-PandaPublisher -WebRequest $WebRequest
+            $Genres = Get-PandaGenres -WebRequest $WebRequest
         }
+    }
+    # Month/Year from magazine name
+    if ($Group -match "\b\d{4}\b") {$Year = $Matches.Values}
+    if ($Group -match "\b-\d{2}\b") {$Month = $Group.Substring($Group.Length - 2)}
 
-        # Changed to use SeriesGroup instead of Series for Magazines/Events as they're more a grouping of series than actual series. This greatly improves how Komga sorts.
-        $Content = @"
-<?xml version="1.0"?>
-<ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Title>$Title</Title>
-  <AlternateSeries>$Parody</AlternateSeries>
-  <Summary>$Summary</Summary>$Year$Month
-  <Writer>$Artist</Writer>
-  <Publisher>$Publisher</Publisher>
-  <Genre>$Genres</Genre>
-  <Web>$URL</Web>
-  <LanguageISO>en</LanguageISO>
-  <Manga>Yes</Manga>
-  <SeriesGroup>$Series</SeriesGroup>
-  <AgeRating>Adults Only 18+</AgeRating>
-</ComicInfo>
-"@
+    # Writes XML in a less hacky way
+    $StringWriter = New-Object System.IO.StringWriter
+    $XmlWriter = New-Object System.XMl.XmlTextWriter($StringWriter)
+    # XML settings
+    $XmlWriter.Formatting = "Indented"
+    $XmlWriter.Indentation = 2
+    $XmlWriter.IndentChar = " "
+    # Start writing
+    $XmlWriter.WriteStartElement("ComicInfo")
+    $XmlWriter.WriteAttributeString("xmlns:xsd", "http://www.w3.org/2001/XMLSchema")
+    $XmlWriter.WriteAttributeString("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    $XmlWriter.WriteElementString("Title", $Title)
+    if ($Series) {
+        $XmlWriter.WriteElementString("Series", $Series)
+        $XmlWriter.WriteElementString("Number", $SeriesNumber)
+    }
+    if ($Parody) {$XmlWriter.WriteElementString("AlternateSeries", $Parody)}
+    $XmlWriter.WriteElementString("Summary", $Summary)
+    if ($Year) {$XmlWriter.WriteElementString("Year", $Year)}
+    if ($Month) {$XmlWriter.WriteElementString("Month", $Month)}
+    $XmlWriter.WriteElementString("Writer", $Artist)
+    $XmlWriter.WriteElementString("Publisher", $Publisher)
+    if ($Circle) {$XmlWriter.WriteElementString("Imprint", $Circle)}
+    $XmlWriter.WriteElementString("Tags", $Genres)
+    $XmlWriter.WriteElementString("Web", $Url)
+    $XmlWriter.WriteElementString("LanguageISO", "en")
+    $XmlWriter.WriteElementString("Manga", "Yes")
+    $XmlWriter.WriteElementString("SeriesGroup", $Group)
+    $XmlWriter.WriteElementString("AgeRating", "Adults Only 18+")
+    $XmlWriter.WriteEndElement()
 
-        Write-Output $Content
+    $XmlWriter.Flush()
+    $StringWriter.Flush()
+
+    Write-Output $StringWriter.ToString()
 }
