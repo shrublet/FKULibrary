@@ -27,8 +27,14 @@ function Get-FakkuMetadata {
                 $WebRequest = (Invoke-WebRequest -Uri $FakkuUrl -Method Get -Verbose:$false).Content
                 $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $FakkuUrl
             } catch {
-                Write-Warning "Work ""$Name"" not found."
-                return
+                try {
+                    $PandaUrl = Get-PandaURL -Name $Name
+                    $WebRequest = (Invoke-WebRequest -Uri $PandaUrl -Method Get -Verbose:$false).Content
+                    $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $PandaUrl -Provider "panda"
+                } catch {
+                    Write-Warning "Work ""$Name"" not found."
+                    return
+                }
             }
             Write-Output $Xml
         }
@@ -36,6 +42,9 @@ function Get-FakkuMetadata {
         'URL' {
             try {
                 if ($URL -match 'fakku') {
+                    $WebRequest = (Invoke-WebRequest -Uri $URL -Method Get -Verbose:$false).Content
+                    $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL
+                } elseif ($URL -match 'panda.chaika') {
                     $WebRequest = (Invoke-WebRequest -Uri $URL -Method Get -Verbose:$false).Content
                     $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL
                 } else {
