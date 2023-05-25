@@ -8,13 +8,12 @@ function Get-FakkuVolume {
         [String]$Url
     )
 
-    $Subdirectory = ($Url -split 'fakku.net')[1]
-    # Match first since it doesn't always appear
-    if ($WebRequest -match "<a href=""$Subdirectory""") {
-        $Vol = ($WebRequest -split "<a href=""$Subdirectory""")[0]
-        $MatchCollection = [regex]::matches($Vol, '<div class=".*?">(\d)<\/div>')
-        $Collection = $MatchCollection.Groups[-1].Value
+    $Path = ($Url -split 'fakku.net')[1]
+    $Volume = ($WebRequest -split "(<a href=`"$Path`")")
+    # Check if Path exists
+    if ($Volume[1]) {
+        $Number = ($Volume[0] -split '<div class=".*?">(\d+)<\/div>')[-2]?.Trim()
     }
 
-    Write-Output $Collection
+    Write-Output $Number
 }

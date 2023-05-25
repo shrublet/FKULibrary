@@ -9,7 +9,7 @@ function Get-FakkuUrl {
         -replace '★', 'bzb' `
         -replace '☆', 'byb' `
         -replace '♪', 'bvb' `
-        -replace '↑', 'b' `
+        -replace '↑', 'bb' `
         -replace '×', 'x' `
         -replace '\s+', ' '
 

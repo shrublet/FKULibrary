@@ -5,7 +5,8 @@ function Get-FakkuPublisher {
         [String]$WebRequest
     )
 
-    $Publisher = ((($WebRequest -split '<a href="\/publishers\/.*?>')[1]) -split '<\/a>')[0].Trim()
+    $Publisher = ($WebRequest -split '<a href="\/publishers\/.*?>(.*?)<\/a>')[1]?.Trim()`
+        -replace '&(?!amp;)', '&amp;'
 
     Write-Output $Publisher
 }

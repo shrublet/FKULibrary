@@ -8,11 +8,13 @@ function Get-MetadataXML {
         [String]$Url,
 
         [Parameter(Mandatory = $false)]
-        [ValidateSet('Fakku', 'Panda')]
-        [String]$Provider = 'Fakku'
+        [ValidateSet('fakku', 'panda')]
+        [String]$Provider = 'fakku'
     )
+
+    $WebRequest = $WebRequest -replace "`n|`r", ""
     switch ($Provider) {
-        'Fakku' {
+        'fakku' {
             $Title = Get-FakkuTitle -Webrequest $WebRequest
             $Series = Get-FakkuSeries -WebRequest $WebRequest
             $SeriesNumber = Get-FakkuVolume -WebRequest $WebRequest -Url $Url
@@ -25,7 +27,7 @@ function Get-MetadataXML {
             $Parody = Get-FakkuParody -WebRequest $WebRequest
         }
 
-        'Panda' {
+        'panda' {
             $Title = Get-PandaTitle -Webrequest $WebRequest
             $Group = Get-PandaSeries -WebRequest $WebRequest
             $Summary = Get-PandaSummary -WebRequest $WebRequest

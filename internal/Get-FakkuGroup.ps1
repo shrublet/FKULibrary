@@ -5,12 +5,10 @@ function Get-FakkuGroup {
         [String]$WebRequest
     )
 
-    $Group = ((($WebRequest -split '<a href="\/magazines\/.*?>')[1]) -split '<\/a>')[0].Trim()
-
-    # Will use event instead if there is no magazine
+    $Group = ($WebRequest -split '<a href="\/magazines\/.*?>(.*?)<\/a>')[1]?.Trim()
     if (-Not $Group) {
-        $Group = ((($WebRequest -split '<a href="\/events\/.*?>')[1]) -split '<\/a>')[0].Trim()
+        $Group = ($WebRequest -split '<a href="\/events\/.*?>(.*?)<\/a>')[1]?.Trim()
     }
 
-    Write-Output $Group
+    Write-Output ($Group -replace '&(?!amp;)', '&amp;')
 }
