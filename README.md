@@ -59,7 +59,11 @@ Scrape metadata from FAKKU.net and build your own local FAKKU manga library with
 
 #### Clone the repository
 
-- [Clone the repository](https://github.com/shrublet/FKULibrary/archive/refs/heads/main.zip) and extract the files to a directory of your choice.
+- [Clone the repository](https://github.com/shrublet/FKULibrary/archive/refs/heads/main.zip) by downloading and extracting the files to a directory of your choice or with Git.
+
+```sh
+git clone https://github.com/shrublet/FKULibrary.git
+```
 
 #### Setup Selenium WebDriver (optional)
 
