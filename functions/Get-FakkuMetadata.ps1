@@ -46,9 +46,9 @@ function Get-FakkuMetadata {
                     $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL
                 } elseif ($URL -match 'panda.chaika') {
                     $WebRequest = (Invoke-WebRequest -Uri $URL -Method Get -Verbose:$false).Content
-                    $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL
+                    $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL -Provider "panda"
                 } else {
-                    Write-Warning "URL ""$URL"" is not a valid FAKKU URL."
+                    Write-Warning "URL `"$URL`" is not a valid FAKKU or Panda URL."
                 }
             } catch {
                 try {

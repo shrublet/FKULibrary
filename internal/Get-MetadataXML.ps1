@@ -12,9 +12,9 @@ function Get-MetadataXML {
         [String]$Provider = 'fakku'
     )
 
-    $WebRequest = $WebRequest -replace "`n|`r", ""
     switch ($Provider) {
         'fakku' {
+            $WebRequest = $WebRequest -replace "`n|`r", ""
             $Title = Get-FakkuTitle -Webrequest $WebRequest
             $Series = Get-FakkuSeries -WebRequest $WebRequest
             $SeriesNumber = Get-FakkuVolume -WebRequest $WebRequest -Url $Url
