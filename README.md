@@ -59,7 +59,7 @@ Scrape metadata from FAKKU.net and build your own local FAKKU manga library with
 
 #### Clone the repository
 
-- [Clone the repository](https://github.com/shrublet/FKULibrary/archive/refs/heads/main.zip) by downloading and extracting the files to a directory of your choice or with Git.
+- Clone the repository by [downloading](https://github.com/shrublet/FKULibrary/archive/refs/heads/main.zip) and extracting the files to a directory of your choice or with Git.
 
 ```sh
 git clone https://github.com/shrublet/FKULibrary.git
