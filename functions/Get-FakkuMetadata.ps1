@@ -62,8 +62,6 @@ function Get-FakkuMetadata {
 
             } catch {
                 try {
-                    Write-Host "Attempting to use browser..."
-
                     try {
                         Add-Type -Path (Get-Item (Join-Path -Path $WebDriverPath -ChildPath 'webdriver.dll'))
                         $WebDriverExe = Get-Item (Join-Path -Path $WebDriverPath -ChildPath '*driver.exe') |

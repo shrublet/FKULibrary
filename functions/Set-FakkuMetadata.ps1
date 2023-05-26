@@ -110,7 +110,6 @@ function Set-FakkuMetadata {
         $WorkName = $File.BaseName
         $XmlPath = Join-Path -Path $File.DirectoryName -ChildPath 'ComicInfo.xml'
 
-        Write-Debug "$XmlPath"
         Write-Host "[$($Index + 1) of $TotalIndex] Setting metadata for `"$WorkName`""
         Start-Sleep -Seconds $Sleep
 
@@ -135,6 +134,9 @@ function Set-FakkuMetadata {
             }
         }
 
+        Write-Debug "UriLocation: $UriLocation"
+        Write-Debug "URL: $NewUrl"
+
         # Attempt with Invoke-WebRequest and match URL
         try {
             $WebRequest = (Invoke-WebRequest -Uri $NewUrl -Method Get -Verbose:$false).Content
@@ -146,7 +148,7 @@ function Set-FakkuMetadata {
         catch {
             try {
                 # TO-DO refactor WebDriver initialization into an internal function
-                Write-Debug "Starting WebDriver."
+                Write-Debug "Falling back on WebDriver."
 
                 try {
                     Add-Type -Path (Get-Item (Join-Path -Path $WebDriverPath -ChildPath 'webdriver.dll'))
@@ -214,6 +216,7 @@ function Set-FakkuMetadata {
 
                     $UriLocation = 'panda'
                     $NewUrl = Get-PandaURL -Name $WorkName
+                    Write-Debug "URL: $NewUrl"
                     $WebRequest = (Invoke-WebRequest -Uri $NewUrl -Method Get -Verbose:$false).Content
                     $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $UriLocation
                     Set-MetadataXML -FilePath $File.FullName -XmlPath $XmlPath -Content $Xml
