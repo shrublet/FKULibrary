@@ -62,7 +62,7 @@ function Set-FakkuMetadata {
             if ((Get-Item -LiteralPath $FilePath) -is [System.IO.DirectoryInfo]) {
                 $Archive = Get-LocalArchives -FilePath $FilePath -Recurse:$Recurse
             } else {
-                $Archive = Get-Item -LiteralPath $FilePath
+                $Archive = @(Get-Item -LiteralPath $FilePath)
             }
 
             # URL verification
