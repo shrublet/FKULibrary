@@ -5,7 +5,7 @@ function Get-FakkuMetadata {
         [String]$Name,
 
         [Parameter(Mandatory = $false, Position = 0, ParameterSetName = 'URL')]
-        [String]$URL,
+        [String]$Url,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'URL')]
         [System.IO.DirectoryInfo]$WebDriverPath = (Get-Item $PSScriptRoot).Parent,
@@ -25,8 +25,11 @@ function Get-FakkuMetadata {
             try {
                 $FakkuUrl = Get-FakkuUrl -Name $Name
                 $WebRequest = (Invoke-WebRequest -Uri $FakkuUrl -Method Get -Verbose:$false).Content
-                $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $FakkuUrl
-            } catch {
+                $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $FakkuUrl -Provider "fakku"
+            }
+
+            # Panda name fallback
+            catch {
                 try {
                     $PandaUrl = Get-PandaURL -Name $Name
                     $WebRequest = (Invoke-WebRequest -Uri $PandaUrl -Method Get -Verbose:$false).Content
@@ -41,15 +44,22 @@ function Get-FakkuMetadata {
 
         'URL' {
             try {
-                if ($URL -match 'fakku') {
-                    $WebRequest = (Invoke-WebRequest -Uri $URL -Method Get -Verbose:$false).Content
-                    $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL
-                } elseif ($URL -match 'panda.chaika') {
-                    $WebRequest = (Invoke-WebRequest -Uri $URL -Method Get -Verbose:$false).Content
-                    $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL -Provider "panda"
-                } else {
-                    Write-Warning "URL `"$URL`" is not a valid FAKKU or Panda URL."
+                Switch -Regex ($Url) {
+                    'fakku.net' {
+                        $Provider = 'fakku'
+                    }
+                    'panda.chaika.moe' {
+                        $Provider = 'panda'
+                    }
+                    Default {
+                        Write-Warning "URL `"$URL`" is not a valid FAKKU or Panda URL."
+                        return
+                    }
                 }
+
+                $WebRequest = (Invoke-WebRequest -Uri $URL -Method Get -Verbose:$false).Content
+                $Xml = Get-MetadataXml -WebRequest $WebRequest -URL $URL -Provider $Provider
+
             } catch {
                 try {
                     Write-Host "Attempting to use browser..."
@@ -107,11 +117,12 @@ function Get-FakkuMetadata {
                             [Void]$Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown")
                         }
                     }
-                    $WebDriver.Navigate().GoToURL($URL)
-                    $Xml = Get-MetadataXML -WebRequest $WebDriver.PageSource -URL $URL
+                    $WebDriver.Navigate().GoToURL($Url)
+                    $WebRequest = $WebDriver.PageSource
+                    $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $Url -Provider "fakku"
                 }
                 catch {
-                    Write-Warning "Error occurred while scraping ""$URL"": $PSItem"
+                    Write-Warning "Error occurred while scraping `"$Url`": $PSItem"
                 }
             }
             if ($WebDriver) {$WebDriver.Quit()}

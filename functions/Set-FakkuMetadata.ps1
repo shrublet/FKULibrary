@@ -65,15 +65,15 @@ function Set-FakkuMetadata {
                 $Archive = Get-Item -LiteralPath $FilePath
             }
 
+            # URL verification
             if ($PSBoundParameters.ContainsKey('Url')) {
                 if (Test-Path -Path $FilePath -PathType Container) {
                     Write-Warning "URL parameter can only be used with an archive, not a directory."
                     return
-                } elseif ($Url -match 'fakku') {
-                    $UriLocation = 'fakku'
-                } elseif ($Url -match 'panda.chaika') {
-                    $UriLocation = 'panda'
-                } else {
+                }
+
+                # A little more flexible if future providers added
+                elseif (-not ($String | Select-String "fakku.net", "panda.chaika.moe")) {
                     Write-Warning "URL `"$Url`" is not a valid FAKKU or Panda URL."
                     return
                 }
@@ -92,67 +92,54 @@ function Set-FakkuMetadata {
             Write-Warning "URL parameter is not compatible with batch tagging."
             return
         }
-        $Links = Get-Content -Path $UrlFile | Where-Object { $_.trim() -match "fakku|panda.chaika" }
+
+        $Links = Get-Content -Path $UrlFile |
+            ForEach-Object {$_.Trim()} |
+            Where-Object { ($_ | Select-String "fakku", "panda.chaika") }
         if ($Links.Count -ne $Archive.Count) {
             Write-Warning "File count does not equal URL count."
             return
         }
     }
 
-
-    $Index = 1
-    $TotalIndex = $Archive.Count
     foreach ($File in $Archive) {
-        # URL verification for batch input
-        # Would ideally not have in the loop
-        if ($Links) {
-            $Link = $Links[$Index - 1]
-            if ($Link -match 'fakku') {
-                $UriLocation = 'fakku'
-                $NewUrl = $Link
-            } elseif ($Link -match 'panda.chaika') {
-                $UriLocation = 'panda'
-                $NewUrl = $Link
-            } else {
-                Write-Warning "URL $($Index - 1) `"$Url`" is not a valid FAKKU or Panda URL."
-                return
-            }
-        }
-
+        $Index = $Archive.IndexOf($File)
+        $TotalIndex = $Archive.Count
+        # Re-initializes variables for next loop
+        $NewUrl = $UriLocation = $Xml = $null
         $WorkName = $File.BaseName
         $XmlPath = Join-Path -Path $File.DirectoryName -ChildPath 'ComicInfo.xml'
 
         Write-Debug "$XmlPath"
-        Write-Host "[$Index of $TotalIndex] Setting metadata for `"$WorkName`""
+        Write-Host "[$($Index + 1) of $TotalIndex] Setting metadata for `"$WorkName`""
         Start-Sleep -Seconds $Sleep
+
+        if ($Links) {
+            $Link = $Links[$Index]
+        } else {
+            $Link = $Url
+        }
+
+        Switch -Regex ($Link) {
+            'fakku.net' {
+                $UriLocation = 'fakku'
+                $NewUrl = $Link
+            }
+            'panda.chaika.moe' {
+                $UriLocation = 'panda'
+                $NewUrl = $Link
+            }
+            Default {
+                $UriLocation = 'fakku'
+                $NewUrl = Get-FakkuUrl -Name $WorkName
+            }
+        }
 
         # Attempt with Invoke-WebRequest and match URL
         try {
-            if ($UriLocation) {
-                Switch ($UriLocation) {
-                    'fakku' {
-                        $NewUrl = $Url
-                        $Provider = 'fakku'
-                    }
-                    'panda' {
-                        $NewUrl = $Url
-                        $Provider = 'panda'
-                    }
-                }
-            }
-
-            # If URL not found, use name
-            else {
-                $NewUrl = Get-FakkuUrl -Name $WorkName
-                $Provider = 'fakku'
-            }
             $WebRequest = (Invoke-WebRequest -Uri $NewUrl -Method Get -Verbose:$false).Content
-            $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $Provider
+            $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $UriLocation
             Set-MetadataXML -FilePath $File.FullName -XmlPath $XmlPath -Content $Xml
-
-            Write-FakkuLog -Log:$Log -LogPath $LogPath -Source $Provider
-            Write-Verbose "Set $FilePath with $NewUrl."
-            Write-Debug "Set $File using $Provider."
         }
 
         # WebDriver fallback
@@ -215,39 +202,30 @@ function Set-FakkuMetadata {
                     }
                 }
                 $WebDriver.Navigate().GoToURL($NewUrl)
-                $Provider = 'fakku'
                 $WebRequest = $WebDriver.PageSource
-                $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl
+                $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $UriLocation
                 Set-MetadataXML -FilePath $File.FullName -XmlPath $XmlPath -Content $Xml
-
-                Write-FakkuLog -Log:$Log -LogPath $LogPath -Source $Provider
-                Write-Verbose "Set $FilePath with $NewUrl."
-                Write-Debug "Set $File using $Provider."
             }
 
-            # Panda fallback
+            # Panda URL from name fallback
             catch {
                 try {
                     Write-Debug "Falling back on Panda."
 
+                    $UriLocation = 'panda'
                     $NewUrl = Get-PandaURL -Name $WorkName
-                    $Provider = 'panda'
                     $WebRequest = (Invoke-WebRequest -Uri $NewUrl -Method Get -Verbose:$false).Content
-                    $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $Provider
+                    $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $UriLocation
                     Set-MetadataXML -FilePath $File.FullName -XmlPath $XmlPath -Content $Xml
 
-                    Write-FakkuLog -Log:$Log -LogPath $LogPath -Source $Provider
-                    Write-Verbose "Set $FilePath with $NewUrl."
-                    Write-Debug "Set $File using $Provider."
-
                 } catch {
-                    Write-Warning "Error occurred while scraping $FakkuUrl : $PSItem"
+                    Write-Warning "Error occurred while scraping $NewUrl : $PSItem"
                 }
             }
         }
-        # Re-initializes variables for next loop
-        $NewUrl = $Provider = $UriLocation = $Xml = $null
-        $Index++
+        Write-FakkuLog -Log:$Log -LogPath $LogPath -Source $UriLocation
+        Write-Verbose "Set $FilePath with $NewUrl."
+        Write-Debug "Set $File using $UriLocation."
     }
     if ($WebDriver) {$WebDriver.Quit()}
     Write-Host "Complete."

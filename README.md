@@ -28,7 +28,13 @@ Scrape metadata from FAKKU.net and build your own local FAKKU manga library with
 
 </details>
 
-            [Getting Started](#getting-started) | [Setup](#setup) | [Usage](#usage) | [Examples](#examples) | [Parameter Descriptions](#parameter-descriptions)
+#### Quick links
+
+- [Getting Started](#getting-started)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Parameters](#parameter-descriptions)
 
 <br/><br/>
 
@@ -105,7 +111,7 @@ Set-FakkuMetadata
 [`-Recurse`](#-recurse)
 [`-Url`](#-url)
 [`-UrlFile`](#-urlfile)
-[`InputFile`](#-inputfile)
+[`-InputFile`](#-inputfile)
 [`-Sleep`](#-sleep)
 [`-WebDriverPath`](#-webdriverpath)
 [`-UserProfile`](#-userprofile)
@@ -192,41 +198,41 @@ Get-FakkuMetadata "Bare Girl"
 
 ## Parameter Descriptions
 
-- ##### `-FilePath` (positional)
+##### `-FilePath` (positional)
 > <sub>Archive or directory or archives to set metadata for</sub>
 
-- ##### `-Name` (positional)
+##### `-Name` (positional)
 > <sub>Work title to search FAKKU for</sub>
 
-- ##### `-Recurse`
+##### `-Recurse`
 > <sub>If it should recursively search the directory for archives (default: False)</sub>
 
-- ##### `-Url`
+##### `-Url`
 > <sub>A FAKKU URL to pull metadata from</sub>
 
-- ##### `-UrlFile`
+##### `-UrlFile`
 > <sub>Specify a text file with FAKKU URLs to use for tagging (compatible with both `-FilePath` and `-InputFile`)</sub>
 
-- ##### `-InputFile`
+##### `-InputFile`
 > <sub>Specify a text file with directories to tag</sub>
 
-- ##### `-Sleep`
+##### `-Sleep`
 > <sub>Time to sleep between scrapes (default: 0)</sub>
 
-- ##### `-WebDriverPath`
+##### `-WebDriverPath`
 > <sub>Specify path to `WebDriver.dll` and `driver.exe` (default: `.`)</sub>
 
-- ##### `-UserProfile`
+##### `-UserProfile`
 > <sub>Specify path to save browser profiles to (default: `.\profiles`)</sub>
 
-- ##### `-Headless`
+##### `-Headless`
 > <sub>Launches browser in headless mode (default: False)</sub>
 
-- ##### `-Incognito`
+##### `-Incognito`
 > <sub>Launches browser in incognito/private mode (default: False)</sub>
 
-- ##### `-Log`
+##### `-Log`
 > <sub>Whether or not logs should be written (default: False)</sub>
 
-- ##### `-LogPath`
+##### `-LogPath`
 > <sub>Specify path to save log to (default: `.\fakku_library.log`)</sub>
