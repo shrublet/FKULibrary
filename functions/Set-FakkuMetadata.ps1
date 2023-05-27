@@ -65,7 +65,7 @@ function Set-FakkuMetadata {
                 $Archive = @(Get-Item -LiteralPath $FilePath)
             }
 
-            # URL verification
+            # URL validation
             if ($PSBoundParameters.ContainsKey('Url')) {
                 if (Test-Path -Path $FilePath -PathType Container) {
                     Write-Warning "URL parameter can only be used with an archive, not a directory."
@@ -93,11 +93,12 @@ function Set-FakkuMetadata {
             return
         }
 
+        # URL validation
         $Links = Get-Content -Path $UrlFile |
             ForEach-Object {$_.Trim()} |
             Where-Object { ($_ | Select-String "fakku", "panda.chaika") }
         if ($Links.Count -ne $Archive.Count) {
-            Write-Warning "File count does not equal URL count."
+            Write-Warning "File count does not match URL count."
             return
         }
     }
@@ -166,6 +167,7 @@ function Set-FakkuMetadata {
                         $Driver = [OpenQA.Selenium.Edge.EdgeDriver]
                         $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Edge"
                         $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
+                        if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
                         if ($Incognito) {$DriverOptions.AddArgument("inprivate")}
                     }
                     'chromedriver.exe' {
@@ -174,6 +176,7 @@ function Set-FakkuMetadata {
                         $Driver = [OpenQA.Selenium.Chrome.ChromeDriver]
                         $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Chrome"
                         $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
+                        if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
                         if ($Incognito) {$DriverOptions.AddArgument("incognito")}
                     }
                     # Untested, but I just hope it works lol.
@@ -181,9 +184,9 @@ function Set-FakkuMetadata {
                         $DriverOptions = New-Object OpenQA.Selenium.firefox.FirefoxOptions
                         $DriverService = [OpenQA.Selenium.firefox.FirefoxDriverService]::CreateDefaultService($WebDriverPath)
                         $Driver = [OpenQA.Selenium.firefox.FirefoxDriver]
-                        if ($UserProfile) {$DriverOptions.AddArgument("P $UserProfile")}
                         $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Firefox"
                         $DriverOptions.AddArgument("profile $ProfilePath")
+                        if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
                         if ($Incognito) {$DriverOptions.AddArgument("private")}
                     }
                     Default {
@@ -195,12 +198,18 @@ function Set-FakkuMetadata {
                 $DriverService.SuppressInitialDiagnosticInformation = $true
                 $DriverService.HideCommandPromptWindow = $true
                 # Initialize new WebDriver if can't find one
-                if (-Not $WebDriver.WindowHandles) {
+                if ($WebDriver.WindowHandles) {
                     $WebDriver = New-Object $Driver -ArgumentList @($DriverService, $DriverOptions)
-                    if (-Not $Headless) {
+                    # Skips login process if in headless mode or browser profile is found
+                    if ($Headless -or -Not (Test-Path -Path (Join-Path -Path $ProfilePath -ChildPath '*'))) {
                         $WebDriver.Navigate().GoToURL("https://fakku.net/login")
-                        Write-Host "Please log into FAKKU then press any key to continue..."
-                        [Void]$Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown")
+                        Write-Host "Please log into FAKKU then press ENTER to continue..."
+                        do {
+                            $KeyPressed = ([Console]::ReadKey($true))
+                            Start-Sleep -Milliseconds 50
+                        } while ($KeyPressed.Key -ne "enter")
+                        # This waits for any key rather than a specific key
+                        # $Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown") | Out-Null
                     }
                 }
                 $WebDriver.Navigate().GoToURL($NewUrl)
@@ -212,7 +221,7 @@ function Set-FakkuMetadata {
             # Panda URL from name fallback
             catch {
                 try {
-                    Write-Debug "Falling back on Panda."
+                    Write-Debug "Falling back on Panda name."
 
                     $UriLocation = 'panda'
                     $NewUrl = Get-PandaURL -Name $WorkName

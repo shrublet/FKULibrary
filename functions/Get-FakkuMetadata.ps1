@@ -78,7 +78,7 @@ function Get-FakkuMetadata {
                             $Driver = [OpenQA.Selenium.Edge.EdgeDriver]
                             $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Edge"
                             $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
-                            if ($Headless) {$DriverOptions.AddArgument("headless")}
+                            if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
                             if ($Incognito) {$DriverOptions.AddArgument("inprivate")}
                         }
                         'chromedriver.exe' {
@@ -87,7 +87,7 @@ function Get-FakkuMetadata {
                             $Driver = [OpenQA.Selenium.Chrome.ChromeDriver]
                             $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Chrome"
                             $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
-                            if ($Headless) {$DriverOptions.AddArgument("headless")}
+                            if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
                             if ($Incognito) {$DriverOptions.AddArgument("incognito")}
                         }
                         'geckodriver.exe' {
@@ -96,7 +96,7 @@ function Get-FakkuMetadata {
                             $Driver = [OpenQA.Selenium.firefox.FirefoxDriver]
                             $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Firefox"
                             $DriverOptions.AddArguments("profile $ProfilePath")
-                            if ($Headless) {$DriverOptions.AddArguments("headless")}
+                            if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
                             if ($Incognito) {$DriverOptions.AddArguments("private")}
                         }
                         Default {
@@ -109,10 +109,14 @@ function Get-FakkuMetadata {
                     $DriverService.HideCommandPromptWindow = $true
                     if (-Not $WebDriver.WindowHandles) {
                         $WebDriver = New-Object $Driver -ArgumentList @($DriverService, $DriverOptions)
-                        if (-Not $Headless) {
+                        if ($Headless -or -Not (Test-Path -Path (Join-Path -Path $ProfilePath -ChildPath '*'))) {
                             $WebDriver.Navigate().GoToURL("https://fakku.net/login")
-                            Write-Host "Please log into FAKKU then press any key to continue..."
-                            [Void]$Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown")
+                            Write-Host "Please log into FAKKU then press ENTER to continue..."
+                            do {
+                                $KeyPressed = ([Console]::ReadKey($true))
+                                Start-Sleep -Milliseconds 50
+                            } while ($KeyPressed.Key -ne "enter")
+                            # $Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown") | Out-Null
                         }
                     }
                     $WebDriver.Navigate().GoToURL($Url)

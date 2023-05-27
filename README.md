@@ -205,7 +205,7 @@ Get-FakkuMetadata "Bare Girl"
 > <sub>Work title to search FAKKU for</sub>
 
 ##### `-Recurse`
-> <sub>If it should recursively search the directory for archives (default: False)</sub>
+> <sub>Whether to recursively search the directory for archives (default: False)</sub>
 
 ##### `-Url`
 > <sub>A FAKKU URL to pull metadata from</sub>
@@ -226,7 +226,7 @@ Get-FakkuMetadata "Bare Girl"
 > <sub>Specify path to save browser profiles to (default: `.\profiles`)</sub>
 
 ##### `-Headless`
-> <sub>Launches browser in headless mode (default: False)</sub>
+> <sub>Launches browser in headless mode (default: True)</sub>
 
 ##### `-Incognito`
 > <sub>Launches browser in incognito/private mode (default: False)</sub>
