@@ -20,10 +20,10 @@ function Set-FakkuMetadata {
         [System.IO.FileInfo]$InputFile,
 
         [Parameter(Mandatory = $false)]
-        [System.IO.DirectoryInfo]$WebDriverPath = (Get-Item $PSScriptRoot).Parent,
+        [System.IO.DirectoryInfo]$DriverPath = (Get-Item $PSScriptRoot).Parent,
 
         [Parameter(Mandatory = $false)]
-        [System.IO.DirectoryInfo]$UserProfile = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath "profiles"),
+        [System.IO.DirectoryInfo]$ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath "profiles"),
 
         [Parameter(Mandatory = $false)]
         [Switch]$Headless,
@@ -148,68 +148,26 @@ function Set-FakkuMetadata {
         # WebDriver fallback
         catch {
             try {
-                # TO-DO refactor WebDriver initialization into an internal function
-                Write-Debug "Falling back on WebDriver."
-
-                try {
-                    Add-Type -Path (Get-Item (Join-Path -Path $WebDriverPath -ChildPath 'webdriver.dll'))
-                    $WebDriverExe = Get-Item (Join-Path -Path $WebDriverPath -ChildPath '*driver.exe') |
-                        Select-Object -First 1
-                } catch {
-                    Write-Warning "Can't find WebDriver.dll or executable."
-                    return
+                $DriverArgs = @{
+                    DriverPath = $DriverPath
+                    ProfilePath = $ProfilePath
+                    Headless = $Headless
+                    Incognito = $Incognito
                 }
-
-                Switch ($WebDriverExe.Name) {
-                    'msedgedriver.exe' {
-                        $DriverOptions = New-Object OpenQA.Selenium.Edge.EdgeOptions
-                        $DriverService = [OpenQA.Selenium.Edge.EdgeDriverService]::CreateDefaultService($WebDriverPath)
-                        $Driver = [OpenQA.Selenium.Edge.EdgeDriver]
-                        $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Edge"
-                        $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
-                        if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
-                        if ($Incognito) {$DriverOptions.AddArgument("inprivate")}
-                    }
-                    'chromedriver.exe' {
-                        $DriverOptions = New-Object OpenQA.Selenium.Chrome.ChromeOptions
-                        $DriverService = [OpenQA.Selenium.Chrome.ChromeDriverService]::CreateDefaultService($WebDriverPath)
-                        $Driver = [OpenQA.Selenium.Chrome.ChromeDriver]
-                        $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Chrome"
-                        $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
-                        if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
-                        if ($Incognito) {$DriverOptions.AddArgument("incognito")}
-                    }
-                    # Untested, but I just hope it works lol.
-                    'geckodriver.exe' {
-                        $DriverOptions = New-Object OpenQA.Selenium.firefox.FirefoxOptions
-                        $DriverService = [OpenQA.Selenium.firefox.FirefoxDriverService]::CreateDefaultService($WebDriverPath)
-                        $Driver = [OpenQA.Selenium.firefox.FirefoxDriver]
-                        $ProfilePath = Join-Path -Path $UserProfile -ChildPath "Firefox"
-                        $DriverOptions.AddArgument("profile $ProfilePath")
-                        if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
-                        if ($Incognito) {$DriverOptions.AddArgument("private")}
-                    }
-                    Default {
-                        Write-Warning "Couldn't find compatible WebDriver executable."
-                        break
-                    }
-                }
-
-                $DriverService.SuppressInitialDiagnosticInformation = $true
-                $DriverService.HideCommandPromptWindow = $true
+                $DriverObject = New-WebDriver @DriverArgs
                 # Initialize new WebDriver if can't find one
-                if ($WebDriver.WindowHandles) {
-                    $WebDriver = New-Object $Driver -ArgumentList @($DriverService, $DriverOptions)
+                if (-Not $DriverObject.Args.IsRunning) {
+                    $WebDriver = New-Object $DriverObject.Driver -ArgumentList $DriverObject.Args
                     # Skips login process if in headless mode or browser profile is found
-                    if ($Headless -or -Not (Test-Path -Path (Join-Path -Path $ProfilePath -ChildPath '*'))) {
+                    if ($Headless -or -Not (Test-Path -Path $ProfilePath\*)) {
                         $WebDriver.Navigate().GoToURL("https://fakku.net/login")
                         Write-Host "Please log into FAKKU then press ENTER to continue..."
+                        # This waits for any key rather than a specific key
+                        # $Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown") | Out-Null
                         do {
                             $KeyPressed = ([Console]::ReadKey($true))
                             Start-Sleep -Milliseconds 50
                         } while ($KeyPressed.Key -ne "enter")
-                        # This waits for any key rather than a specific key
-                        # $Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown") | Out-Null
                     }
                 }
                 $WebDriver.Navigate().GoToURL($NewUrl)
@@ -221,7 +179,7 @@ function Set-FakkuMetadata {
             # Panda URL from name fallback
             catch {
                 try {
-                    Write-Debug "Falling back on Panda name."
+                    Write-Debug "Falling back on Panda."
 
                     $UriLocation = 'panda'
                     $NewUrl = Get-PandaURL -Name $WorkName

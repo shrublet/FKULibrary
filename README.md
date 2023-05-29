@@ -113,8 +113,8 @@ Set-FakkuMetadata
 [`-UrlFile`](#-urlfile)
 [`-InputFile`](#-inputfile)
 [`-Sleep`](#-sleep)
-[`-WebDriverPath`](#-webdriverpath)
-[`-UserProfile`](#-userprofile)
+[`-DriverPath`](#-driverpath)
+[`-ProfilePath`](#-profilepath)
 [`-Headless`](#-headless)
 [`-Incognito`](#-incognito)
 [`-Log`](#-log)
@@ -130,8 +130,8 @@ Get-FakkuMetadata
 
 [`-Name`](#-name-positional)
 [`-Url`](#-url)
-[`-WebDriverPath`](#-webdriverpath)
-[`-UserProfile`](#-userprofile)
+[`-DriverPath`](#-driverpath)
+[`-ProfilePath`](#-profilepath)
 [`-Headless`](#-headless)
 [`-Incognito`](#-incognito)
 
@@ -219,10 +219,10 @@ Get-FakkuMetadata "Bare Girl"
 ##### `-Sleep`
 > <sub>Time to sleep between scrapes (default: 0)</sub>
 
-##### `-WebDriverPath`
+##### `-DriverPath`
 > <sub>Specify path to `WebDriver.dll` and `driver.exe` (default: `.`)</sub>
 
-##### `-UserProfile`
+##### `-ProfilePath`
 > <sub>Specify path to save browser profiles to (default: `.\profiles`)</sub>
 
 ##### `-Headless`
