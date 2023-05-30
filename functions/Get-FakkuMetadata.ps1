@@ -80,7 +80,7 @@ function Get-FakkuMetadata {
                     $DriverObject = New-WebDriver @DriverArgs
                     $BrowserProfile = $DriverObject.Args.Arguments[0].Split("user-data-dir=")[1]
                     $WebDriver = New-Object $DriverObject.Driver -ArgumentList $DriverObject.Args
-                    if ($Headless -or -not (Test-Path -Path $BrowserProfile\*)) {
+                    if ($Headless -and -not (Test-Path -Path $BrowserProfile\*)) {
                         $WebDriver.Navigate().GoToURL("https://fakku.net/login")
                         Write-Host "Please log into FAKKU then press ENTER to continue..."
                         do {

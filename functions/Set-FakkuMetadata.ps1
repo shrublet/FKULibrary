@@ -63,9 +63,9 @@ function Set-FakkuMetadata {
         'File' {
             # Check if FilePath is a directory or file to determine how to proceed
             if ((Get-Item -LiteralPath $FilePath) -is [IO.DirectoryInfo]) {
-                $Archive = Get-LocalArchives -FilePath $FilePath -Recurse:$Recurse
+                [array]$Archive = Get-LocalArchives -FilePath $FilePath -Recurse:$Recurse
             } else {
-                $Archive = @(Get-Item -LiteralPath $FilePath)
+                [array]$Archive = Get-Item -LiteralPath $FilePath
             }
 
             # URL validation
@@ -84,7 +84,7 @@ function Set-FakkuMetadata {
         }
 
         'Batch' {
-            $Archive = Get-Content -Path $InputFile |
+            [array]$Archive = Get-Content -Path $InputFile |
                 Where-Object { Test-Path -Path $_.trim().trim('"') } |
                 ForEach-Object { Get-Item -Path $_.trim().trim('"') }
         }
@@ -97,9 +97,9 @@ function Set-FakkuMetadata {
         }
 
         # URL validation
-        $Links = Get-Content -Path $UrlFile |
+        [array]$Links = Get-Content -Path $UrlFile |
             ForEach-Object {$_.Trim()} |
-            Where-Object { ($_ | Select-String "fakku", "panda.chaika") }
+            Where-Object { ($_ | Select-String "fakku.net", "panda.chaika") }
         if ($Links.Count -ne $Archive.Count) {
             Write-Warning "File count does not match URL count."
             return
@@ -165,7 +165,7 @@ function Set-FakkuMetadata {
                 if (-not $DriverObject.Args.IsRunning) {
                     $WebDriver = New-Object $DriverObject.Driver -ArgumentList $DriverObject.Args
                     # Skips login process if in headless mode or browser profile is found
-                    if ($Headless -or -not (Test-Path -Path $BrowserProfile\*)) {
+                    if ($Headless -and -not (Test-Path -Path $BrowserProfile\*)) {
                         $WebDriver.Navigate().GoToURL("https://fakku.net/login")
                         Write-Host "Please log into FAKKU then press ENTER to continue..."
                         # This waits for any key rather than a specific key
@@ -199,6 +199,7 @@ function Set-FakkuMetadata {
                 }
             }
         }
+
         Write-FakkuLog -Log:$Log -LogPath $LogPath -Source $UriLocation
         Write-Verbose "Set $FilePath with $NewUrl."
         Write-Debug "Set $File using $UriLocation."
