@@ -1,6 +1,6 @@
 # FAKKU Library
 
-Scrape metadata from FAKKU.net and build your own local FAKKU manga library with Komga or any other CMS that supports `ComicInfo.xml` metadata.
+Scrape metadata from [FAKKU](https://www.fakku.net/) or [Panda](https://panda.chaika.moe/) and build your own local FAKKU library with Komga or any other CMS that supports `ComicInfo.xml` metadata.
 
 <details>
 
@@ -47,6 +47,7 @@ Scrape metadata from FAKKU.net and build your own local FAKKU manga library with
 
 #### Accepted archive filenames examples
 
+- `[Circle (Artist)] Title (Comic XXX) [Publisher] [etc.].ext`
 - `[Artist] Title (Comic XXX).ext`
 - `Title (Comic XXX).ext`
 - `Title.ext`
@@ -113,6 +114,7 @@ Set-FakkuMetadata
 [`-UrlFile`](#-urlfile)
 [`-InputFile`](#-inputfile)
 [`-Sleep`](#-sleep)
+[`-Destination`](#-destination)
 [`-DriverPath`](#-driverpath)
 [`-ProfilePath`](#-profilepath)
 [`-Headless`](#-headless)
@@ -202,37 +204,40 @@ Get-FakkuMetadata "Bare Girl"
 > <sub>Archive or directory or archives to set metadata for</sub>
 
 ##### `-Name` (positional)
-> <sub>Work title to search FAKKU for</sub>
+> <sub>Work title to search FAKKU/Panda for</sub>
 
 ##### `-Recurse`
-> <sub>Whether to recursively search the directory for archives (default: False)</sub>
+> <sub>Whether to recursively search the directory for archives (default: `False`)</sub>
 
 ##### `-Url`
-> <sub>A FAKKU URL to pull metadata from</sub>
+> <sub>FAKKU/Panda URL to pull metadata from</sub>
 
 ##### `-UrlFile`
-> <sub>Specify a text file with FAKKU URLs to use for tagging (compatible with both `-FilePath` and `-InputFile`)</sub>
+> <sub>Text file with FAKKU/Panda URLs to use for tagging (compatible with both `-FilePath` and `-InputFile`)</sub>
 
 ##### `-InputFile`
-> <sub>Specify a text file with directories to tag</sub>
+> <sub>Text file with directories to tag</sub>
 
 ##### `-Sleep`
-> <sub>Time to sleep between scrapes (default: 0)</sub>
+> <sub>Time to sleep between scrapes (default: `0`)</sub>
+
+##### `-Destination`
+> <sub>Path to move completed archives to (default: `None`)</sub>
 
 ##### `-DriverPath`
-> <sub>Specify path to `WebDriver.dll` and `driver.exe` (default: `.`)</sub>
+> <sub>Path to `WebDriver.dll` and `driver.exe` (default: `.`)</sub>
 
 ##### `-ProfilePath`
-> <sub>Specify path to save browser profiles to (default: `.\profiles`)</sub>
+> <sub>Path to save browser profiles to (default: `.\profiles`)</sub>
 
 ##### `-Headless`
-> <sub>Launches browser in headless mode (default: True)</sub>
+> <sub>Launches browser in headless mode (default: `True`)</sub>
 
 ##### `-Incognito`
-> <sub>Launches browser in incognito/private mode (default: False)</sub>
+> <sub>Launches browser in incognito/private mode (default: `False`)</sub>
 
 ##### `-Log`
-> <sub>Whether or not logs should be written (default: False)</sub>
+> <sub>If logs should be written (default: `False`)</sub>
 
 ##### `-LogPath`
-> <sub>Specify path to save log to (default: `.\fakku_library.log`)</sub>
+> <sub>Path to save log to (default: `.\fakku_library.log`)</sub>

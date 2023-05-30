@@ -2,7 +2,7 @@ function Set-FakkuMetadata {
     [CmdletBinding(DefaultParameterSetName = 'File')]
     param(
         [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'File')]
-        [System.IO.FileInfo]$FilePath,
+        [IO.FileInfo]$FilePath,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'File')]
         [Switch]$Recurse,
@@ -14,16 +14,19 @@ function Set-FakkuMetadata {
         [Int32]$Sleep,
 
         [Parameter(Mandatory = $false)]
-        [System.IO.FileInfo]$UrlFile,
+        [IO.FileInfo]$UrlFile,
+
+        [Parameter(Mandatory = $false)]
+        [IO.DirectoryInfo]$Destination,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Batch')]
-        [System.IO.FileInfo]$InputFile,
+        [IO.FileInfo]$InputFile,
 
         [Parameter(Mandatory = $false)]
-        [System.IO.DirectoryInfo]$DriverPath = (Get-Item $PSScriptRoot).Parent,
+        [IO.DirectoryInfo]$DriverPath = (Get-Item $PSScriptRoot).Parent,
 
         [Parameter(Mandatory = $false)]
-        [System.IO.DirectoryInfo]$ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath "profiles"),
+        [IO.DirectoryInfo]$ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath "profiles"),
 
         [Parameter(Mandatory = $false)]
         [Switch]$Headless,
@@ -35,13 +38,13 @@ function Set-FakkuMetadata {
         [Switch]$Log,
 
         [Parameter(Mandatory = $false)]
-        [System.IO.FileInfo]$LogPath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent - ChildPath "fakku_library.log")
+        [IO.FileInfo]$LogPath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent - ChildPath "fakku_library.log")
     )
 
     function Write-FakkuLog {
         param(
             [Switch]$Log,
-            [System.IO.FileInfo]$LogPath,
+            [IO.FileInfo]$LogPath,
             [String]$Source
         )
 
@@ -59,7 +62,7 @@ function Set-FakkuMetadata {
     Switch ($PSCmdlet.ParameterSetName) {
         'File' {
             # Check if FilePath is a directory or file to determine how to proceed
-            if ((Get-Item -LiteralPath $FilePath) -is [System.IO.DirectoryInfo]) {
+            if ((Get-Item -LiteralPath $FilePath) -is [IO.DirectoryInfo]) {
                 $Archive = Get-LocalArchives -FilePath $FilePath -Recurse:$Recurse
             } else {
                 $Archive = @(Get-Item -LiteralPath $FilePath)
@@ -137,6 +140,7 @@ function Set-FakkuMetadata {
 
         Write-Debug "UriLocation: $UriLocation"
         Write-Debug "URL: $NewUrl"
+        Write-Debug "Path: $File"
 
         # Attempt with Invoke-WebRequest and match URL
         try {
@@ -148,6 +152,8 @@ function Set-FakkuMetadata {
         # WebDriver fallback
         catch {
             try {
+                Write-Debug "Falling back on WebDriver."
+
                 $DriverArgs = @{
                     DriverPath = $DriverPath
                     ProfilePath = $ProfilePath
@@ -155,15 +161,15 @@ function Set-FakkuMetadata {
                     Incognito = $Incognito
                 }
                 $DriverObject = New-WebDriver @DriverArgs
-                # Initialize new WebDriver if can't find one
-                if (-Not $DriverObject.Args.IsRunning) {
+                $BrowserProfile = $DriverObject.Args.Arguments[0].Split("user-data-dir=")[1]
+                if (-not $DriverObject.Args.IsRunning) {
                     $WebDriver = New-Object $DriverObject.Driver -ArgumentList $DriverObject.Args
                     # Skips login process if in headless mode or browser profile is found
-                    if ($Headless -or -Not (Test-Path -Path $ProfilePath\*)) {
+                    if ($Headless -or -not (Test-Path -Path $BrowserProfile\*)) {
                         $WebDriver.Navigate().GoToURL("https://fakku.net/login")
                         Write-Host "Please log into FAKKU then press ENTER to continue..."
                         # This waits for any key rather than a specific key
-                        # $Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown") | Out-Null
+                        # [void]$Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyDown")
                         do {
                             $KeyPressed = ([Console]::ReadKey($true))
                             Start-Sleep -Milliseconds 50
@@ -189,13 +195,41 @@ function Set-FakkuMetadata {
                     Set-MetadataXML -FilePath $File.FullName -XmlPath $XmlPath -Content $Xml
 
                 } catch {
-                    Write-Warning "Error occurred while scraping $NewUrl : $PSItem"
+                    Write-Warning "Error occurred while scraping `"$NewUrl`": $PSItem"
                 }
             }
         }
         Write-FakkuLog -Log:$Log -LogPath $LogPath -Source $UriLocation
         Write-Verbose "Set $FilePath with $NewUrl."
         Write-Debug "Set $File using $UriLocation."
+
+        # Move archive to "./Artist/Series/Archive.ext".
+        if ($Destination) {
+            try {
+                Write-Debug "Moving archive."
+                $WebRequest = $WebRequest -replace "`n|`r", ""
+                # Remove reserved path characters
+                $Title = (Get-FakkuTitle -WebRequest $WebRequest)`
+                    -replace "\\|\/|\||:|\*|\?|\`"|<|>", ""
+                $Series = (Get-FakkuSeries -WebRequest $WebRequest)`
+                    -replace "\\|\/|\||:|\*|\?|\`"|<|>", ""
+                $Artist = (Get-FakkuArtist -WebRequest $WebRequest).Split(",")[0]
+                if ($Series) {
+                    $SeriesPath = Join-Path -Path $Destination -ChildPath $Artist -AdditionalChildPath $Series
+                } else {
+                    $SeriesPath = Join-Path -Path $Destination -ChildPath $Artist -AdditionalChildPath $Title
+                }
+                if (-not (Test-Path $SeriesPath)){
+                    [void](New-Item -Path $SeriesPath -ItemType "Directory")
+                }
+                $TargetPath = Join-Path -Path $SeriesPath -ChildPath "$Title$($File.Extension)"
+                Write-Debug "Target path: $TargetPath"
+                Move-Item -Path $File.FullName -Destination $TargetPath
+                $Series = $null
+            } catch {
+                Write-Warning "Error occurred while moving `"$File`": $PSItem"
+            }
+        }
     }
     if ($WebDriver) {$WebDriver.Quit()}
     Write-Host "Complete."

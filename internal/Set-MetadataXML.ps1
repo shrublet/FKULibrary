@@ -2,10 +2,10 @@ function Set-MetadataXML {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$FilePath,
+        [IO.FileInfo]$FilePath,
 
         [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$XmlPath,
+        [IO.FileInfo]$XmlPath,
 
         [Parameter(Mandatory = $true)]
         [String]$Content

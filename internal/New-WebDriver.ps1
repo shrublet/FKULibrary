@@ -16,7 +16,7 @@ function New-WebDriver {
 
     try {
         Add-Type -Path (Get-Item (Join-Path -Path $DriverPath -ChildPath 'webdriver.dll'))
-        $WebDriverExe = Get-Item (Join-Path -Path $DriverPath -ChildPath '*driver.exe') |
+        $DriverExe = Get-Item (Join-Path -Path $DriverPath -ChildPath '*driver.exe') |
             Select-Object -First 1
         $UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"
     } catch {
@@ -24,14 +24,14 @@ function New-WebDriver {
         return
     }
 
-    Switch ($WebDriverExe.Name) {
+    Switch ($DriverExe.Name) {
         'msedgedriver.exe' {
             Write-Debug "Using Microsoft Edge."
             $DriverOptions = New-Object OpenQA.Selenium.Edge.EdgeOptions
             $DriverService = [OpenQA.Selenium.Edge.EdgeDriverService]::CreateDefaultService($DriverPath)
             $Driver = [OpenQA.Selenium.Edge.EdgeDriver]
-            $ProfilePath = Join-Path -Path $ProfilePath -ChildPath "Edge"
-            $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
+            $BrowserProfile = Join-Path -Path $ProfilePath -ChildPath "Edge"
+            $DriverOptions.AddArgument("user-data-dir=$BrowserProfile")
             $DriverOptions.AddArgument("user-agent=$UserAgent")
             if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
             if ($Incognito) {$DriverOptions.AddArgument("inprivate")}
@@ -41,8 +41,8 @@ function New-WebDriver {
             $DriverOptions = New-Object OpenQA.Selenium.Chrome.ChromeOptions
             $DriverService = [OpenQA.Selenium.Chrome.ChromeDriverService]::CreateDefaultService($DriverPath)
             $Driver = [OpenQA.Selenium.Chrome.ChromeDriver]
-            $ProfilePath = Join-Path -Path $ProfilePath -ChildPath "Chrome"
-            $DriverOptions.AddArgument("user-data-dir=$ProfilePath")
+            $BrowserProfile = Join-Path -Path $ProfilePath -ChildPath "Chrome"
+            $DriverOptions.AddArgument("user-data-dir=$BrowserProfile")
             $DriverOptions.AddArgument("user-agent=$UserAgent")
             if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
             if ($Incognito) {$DriverOptions.AddArgument("incognito")}
@@ -54,8 +54,8 @@ function New-WebDriver {
             $DriverService = [OpenQA.Selenium.firefox.FirefoxDriverService]::CreateDefaultService($DriverPath)
             $DriverProfile = New-Object OpenQA.Selenium.firefox.FirefoxProfile
             $Driver = [OpenQA.Selenium.firefox.FirefoxDriver]
-            $ProfilePath = Join-Path -Path $ProfilePath -ChildPath "Firefox"
-            $DriverOptions.AddArgument("profile $ProfilePath")
+            $BrowserProfile = Join-Path -Path $ProfilePath -ChildPath "Firefox"
+            $DriverOptions.AddArgument("profile $BrowserProfile")
             $DriverProfile.SetPreference("general.useragent.override", $UserAgent)
             if (-Not $Headless) {$DriverOptions.AddArgument("headless")}
             if ($Incognito) {$DriverOptions.AddArgument("private")}
@@ -75,5 +75,4 @@ function New-WebDriver {
         Args = $Arguments
     }
     return $DriverObject
-
 }

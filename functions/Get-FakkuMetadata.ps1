@@ -8,10 +8,10 @@ function Get-FakkuMetadata {
         [String]$Url,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Url')]
-        [System.IO.DirectoryInfo]$DriverPath = (Get-Item $PSScriptRoot).Parent,
+        [IO.DirectoryInfo]$DriverPath = (Get-Item $PSScriptRoot).Parent,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Url')]
-        [System.IO.DirectoryInfo]$ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath "profiles"),
+        [IO.DirectoryInfo]$ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath "profiles"),
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Url')]
         [Switch]$Headless,
@@ -78,16 +78,15 @@ function Get-FakkuMetadata {
                         Incognito = $Incognito
                     }
                     $DriverObject = New-WebDriver @DriverArgs
-                    if (-Not $DriverObject.Args.IsRunning) {
-                        $WebDriver = New-Object $DriverObject.Driver -ArgumentList $DriverObject.Args
-                        if ($Headless -or -Not (Test-Path -Path $ProfilePath\*)) {
-                            $WebDriver.Navigate().GoToURL("https://fakku.net/login")
-                            Write-Host "Please log into FAKKU then press ENTER to continue..."
-                            do {
-                                $KeyPressed = ([Console]::ReadKey($true))
-                                Start-Sleep -Milliseconds 50
-                            } while ($KeyPressed.Key -ne "enter")
-                        }
+                    $BrowserProfile = $DriverObject.Args.Arguments[0].Split("user-data-dir=")[1]
+                    $WebDriver = New-Object $DriverObject.Driver -ArgumentList $DriverObject.Args
+                    if ($Headless -or -not (Test-Path -Path $BrowserProfile\*)) {
+                        $WebDriver.Navigate().GoToURL("https://fakku.net/login")
+                        Write-Host "Please log into FAKKU then press ENTER to continue..."
+                        do {
+                            $KeyPressed = ([Console]::ReadKey($true))
+                            Start-Sleep -Milliseconds 50
+                        } while ($KeyPressed.Key -ne "enter")
                     }
                     $WebDriver.Navigate().GoToURL($Url)
                     $WebRequest = $WebDriver.PageSource
