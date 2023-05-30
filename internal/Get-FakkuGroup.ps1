@@ -10,5 +10,5 @@ function Get-FakkuGroup {
         $Group = ($WebRequest -split '<a href="\/events\/.*?>(.*?)<\/a>')[1]?.Trim()
     }
 
-    Write-Output ($Group -replace '&(?!amp;)', '&amp;')
+    Write-Output ([Net.WebUtility]::HtmlDecode($Group))
 }

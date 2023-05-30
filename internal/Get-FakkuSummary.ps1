@@ -5,8 +5,7 @@ function Get-FakkuSummary {
         [String]$WebRequest
     )
 
-    $Summary = ($WebRequest -split 'description" content="(.*?)">')[1]?.Trim()`
-        -replace '&(?!amp;)', '&amp;'
+    $Summary = ($WebRequest -split 'description" content="(.*?)">')[1]?.Trim()
 
-    Write-Output $Summary
+    Write-Output ([Net.WebUtility]::HtmlDecode($Summary))
 }

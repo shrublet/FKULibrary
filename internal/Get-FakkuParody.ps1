@@ -6,8 +6,7 @@ function Get-FakkuParody {
     )
 
     # In the rare case there's multiple Parody attributions, it will only take the first
-    $Parody = ($WebRequest -split '<a href="\/series\/.*?>(.*?)<\/a>')[1]?.Trim()`
-        -replace '&(?!amp;)', '&amp;'
+    $Parody = ($WebRequest -split '<a href="\/series\/.*?>(.*?)<\/a>')[1]?.Trim()
 
-    Write-Output $Parody
+    Write-Output ([Net.WebUtility]::HtmlDecode($Parody))
 }

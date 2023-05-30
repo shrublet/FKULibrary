@@ -8,5 +8,5 @@ function Get-FakkuGenres {
     $Genres = (($WebRequest | Select-String -Pattern '<a href="\/tags\/.*?">(.*?)<' -AllMatches).Matches |
         ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ", "
 
-    Write-Output $Genres
+    Write-Output ([Net.WebUtility]::HtmlDecode($Genres))
 }

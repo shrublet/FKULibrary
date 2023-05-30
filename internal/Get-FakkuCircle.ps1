@@ -5,8 +5,7 @@ function Get-FakkuCircle {
         [String]$WebRequest
     )
 
-    $Circle = ($WebRequest -split '<a href="\/circles\/.*?>(.*?)<\/a>')[1]?.Trim()`
-        -replace '&(?!amp;)', '&amp;'
+    $Circle = ($WebRequest -split '<a href="\/circles\/.*?>(.*?)<\/a>')[1]?.Trim()
 
-    Write-Output $Circle
+    Write-Output ([Net.WebUtility]::HtmlDecode($Circle))
 }

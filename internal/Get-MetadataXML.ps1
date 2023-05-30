@@ -41,8 +41,9 @@ function Get-MetadataXML {
     if ($Group -match "\b-\d{2}\b") {$Month = $Group.Substring($Group.Length - 2)}
 
     # Writes XML in a less hacky way
-    $StringWriter = New-Object System.IO.StringWriter
-    $XmlWriter = New-Object System.XMl.XmlTextWriter($StringWriter)
+    # This encodes XML reserved characters automatically
+    $StringWriter = New-Object IO.StringWriter
+    $XmlWriter = New-Object XML.XmlTextWriter($StringWriter)
     # XML settings
     $XmlWriter.Formatting = "Indented"
     $XmlWriter.Indentation = 2

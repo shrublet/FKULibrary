@@ -10,5 +10,5 @@ function Get-FakkuArtist {
     $Artist = (($ArtistDiv | Select-String -Pattern '<a href="\/artists\/.*?>(.*?)<' -AllMatches).Matches |
         ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ", "
 
-    Write-Output $Artist
+    Write-Output ([Net.WebUtility]::HtmlDecode($Artist))
 }
