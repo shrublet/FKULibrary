@@ -5,8 +5,12 @@ function Get-FakkuParody {
         [String]$WebRequest
     )
 
-    # In the rare case there's multiple Parody attributions, it will only take the first
-    $Parody = ($WebRequest -split '<a href="\/series\/.*?>(.*?)<\/a>')[1]?.Trim()
+    # Comma delimits multiple entries
+    $Parody = (($WebRequest | Select-String -Pattern '(?s)<a href="\/series\/.*?">(.*?)<' -AllMatches).Matches |
+        ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ', '
+
+    # Disposes additional parody entries
+    # $Parody = ($WebRequest -split '(?s)<a href="\/series\/.*?>(.*?)<\/a>')[1]?.Trim()
 
     Write-Output ([Net.WebUtility]::HtmlDecode($Parody))
 }

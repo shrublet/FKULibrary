@@ -5,7 +5,7 @@ function Get-FakkuSeries {
         [String]$WebRequest
     )
 
-    $Series = ($WebRequest -split '<a href="\/collections\/.*?>(.*?)<\/a>')[1]?.Trim()
+    $Series = ($WebRequest -split '(?s)<a href="\/collections\/.*?>(.*?)<\/a>')[1]?.Trim()
 
     Write-Output ([Net.WebUtility]::HtmlDecode($Series))
 }

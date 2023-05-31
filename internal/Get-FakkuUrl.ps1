@@ -6,6 +6,7 @@ function Get-FakkuUrl {
     )
 
     $UrlName = $Name.ToLower()`
+        # -replace "'", 'bgb' `
         -replace '★', 'bzb' `
         -replace '☆', 'byb' `
         -replace '♪', 'bvb' `
@@ -13,10 +14,6 @@ function Get-FakkuUrl {
         -replace '×', 'x' `
         -replace '\s+', ' '
 
-    # Matches the following -
-    # [Circle (Artist)] Title (Comic XXX) [Publisher] [etc.].ext
-    # [Artist] Title (Comic XXX).ext
-    # Title (Comic XXX).ext
     if ($UrlName -match '^(?:\[.+?\])*(.+)\(.+?\)(?:\s*\[.+?\])*\.[a-z0-9]+$') {
         $UrlName = $Matches[1].Trim()
     }
