@@ -10,13 +10,15 @@ Scrape metadata from [FAKKU](https://www.fakku.net/) or [Panda](https://panda.ch
 <?xml version="1.0"?>
 <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Title>Bare Girl</Title>
-  <AlternateSeries>Original Work</AlternateSeries>
+  <Series>Bare Girl</Series>
+  <Number>1</Number>
   <Summary>Don't stare at me… you make me wanna strip…</Summary>
   <Year>2017</Year>
   <Month>03</Month>
   <Writer>Tsukako</Writer>
   <Publisher>FAKKU</Publisher>
-  <Tags>Blowjob, Booty, Busty, Cosplay, Creampie, Hentai, Lingerie, Slice of Life, Stockings, Uncensored, Vanilla</Tags>
+  <Tags>Blowjob, Booty, Busty, Cosplay, Creampie, Cunnilingus, Hentai, Light Hair, Lingerie, Slice of Life, Stockings, Uncensored, Vanilla</Tags>
+  <Genre>Original Work</Genre>
   <Web>https://www.fakku.net/hentai/bare-girl-english</Web>
   <LanguageISO>en</LanguageISO>
   <Manga>Yes</Manga>
@@ -108,7 +110,7 @@ Set-FakkuMetadata
 
 ###### Available parameters
 
-[`-FilePath`](#-filepath-positional)
+[`-FilePath`](#-filepath)
 [`-Recurse`](#-recurse)
 [`-Url`](#-url)
 [`-UrlFile`](#-urlfile)
@@ -131,7 +133,7 @@ Get-FakkuMetadata
 
 ###### Available parameters
 
-[`-Name`](#-name-positional)
+[`-Name`](#-name)
 [`-Url`](#-url)
 [`-DriverPath`](#-driverpath)
 [`-ProfilePath`](#-profilepath)
@@ -147,8 +149,8 @@ Get-FakkuLinks
 
 ###### Available parameters
 
-[`-FilePath`](#-filepath-positional)
-[`-Name`](#-name-positional)
+[`-FilePath`](#-filepath)
+[`-Name`](#-name)
 [`-Recurse`](#-recurse)
 
 <br/><br/>
@@ -202,10 +204,10 @@ Get-FakkuMetadata "Bare Girl"
 
 ## Parameter Descriptions
 
-##### `-FilePath` (positional)
+##### `-FilePath`
 > <sub>Archive or directory or archives to set metadata for</sub>
 
-##### `-Name` (positional)
+##### `-Name`
 > <sub>Work title to search FAKKU/Panda for</sub>
 
 ##### `-Recurse`
