@@ -111,7 +111,7 @@ function Set-FakkuMetadata {
     # Main loop
     foreach ($File in $Archive) {
         # Re-initializes variables for next loop
-        $NewUrl = $UriLocation = $Xml = $null
+        $NewUrl = $UriLocation = $Xml = $Series = $null
         $Index = $Archive.IndexOf($File)
         $TotalIndex = $Archive.Count
         $WorkName = $File.BaseName
@@ -219,7 +219,7 @@ function Set-FakkuMetadata {
         Write-Verbose "Set $FilePath with $NewUrl."
         Write-Debug "Set using $UriLocation."
 
-        # Move archive to "Destination/Artist/Archive.ext".
+        # Move archive to "Destination/Artist/Series/Archive.ext".
         if ($Destination) {
             try {
                 Write-Debug 'Moving archive...'
@@ -227,14 +227,17 @@ function Set-FakkuMetadata {
                 # Remove reserved characters
                 $Title = (Get-FakkuTitle -WebRequest $WebRequest)`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
+                $Series = (Get-FakkuSeries -WebRequest $WebRequest)`
+                    -replace '\\|\/|\||:|\*|\?|"|<|>', ''
                 $Artist = (Get-FakkuArtist -WebRequest $WebRequest).Split(',')[0]
-                $ArtistPath = Join-Path -Path $Destination -ChildPath $Artist
+                if (-not $Series) { $Series = $Title }
+                $SeriesPath = Join-Path -Path $Destination -ChildPath $Artist -AdditionalChildPath $Series.TrimEnd('.')
 
-                if (-not (Test-Path $ArtistPath)){
-                    [void](New-Item -Path $ArtistPath -ItemType 'Directory')
+                if (-not (Test-Path $SeriesPath)){
+                    [void](New-Item -Path $SeriesPath -ItemType 'Directory')
                 }
 
-                $TargetPath = Join-Path -Path $ArtistPath -ChildPath "$Title$($File.Extension)"
+                $TargetPath = Join-Path -Path $SeriesPath -ChildPath "$Title$($File.Extension)"
                 Write-Debug "Target path: $TargetPath"
                 Move-Item -LiteralPath $File.FullName -Destination $TargetPath
             } catch {
