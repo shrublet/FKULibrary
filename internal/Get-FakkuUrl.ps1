@@ -6,13 +6,13 @@ function Get-FakkuUrl {
     )
 
     $UrlName = $Name.ToLower()`
-        # -replace "'", 'bgb' `
         -replace '★', 'bzb' `
         -replace '☆', 'byb' `
         -replace '♪', 'bvb' `
         -replace '↑', 'bb' `
         -replace '×', 'x' `
         -replace '\s+', ' '
+        # -replace "'", 'bgb'
 
     if ($UrlName -match '^(?:\[.+?\])*(.+)\(.+?\)(?:\s*\[.+?\])*\.[a-z0-9]+$') {
         $UrlName = $Matches[1].Trim()
