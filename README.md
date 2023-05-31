@@ -117,6 +117,7 @@ Set-FakkuMetadata
 [`-Destination`](#-destination)
 [`-DriverPath`](#-driverpath)
 [`-ProfilePath`](#-profilepath)
+[`-Safe`](#-safe)
 [`-Headless`](#-headless)
 [`-Incognito`](#-incognito)
 [`-Log`](#-log)
@@ -134,6 +135,7 @@ Get-FakkuMetadata
 [`-Url`](#-url)
 [`-DriverPath`](#-driverpath)
 [`-ProfilePath`](#-profilepath)
+[`-Safe`](#-safe)
 [`-Headless`](#-headless)
 [`-Incognito`](#-incognito)
 
@@ -229,6 +231,9 @@ Get-FakkuMetadata "Bare Girl"
 
 ##### `-ProfilePath`
 > <sub>Path to save browser profiles to (default: `.\profiles`)</sub>
+
+##### `-Safe`
+> <sub>Force the use of Selenium to scrape metadata to avoid edge-case metadata issues (default: `False`)</sub>
 
 ##### `-Headless`
 > <sub>Launches browser in headless mode (default: `True`)</sub>
