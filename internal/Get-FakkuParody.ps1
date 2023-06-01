@@ -12,5 +12,7 @@ function Get-FakkuParody {
     # Disposes additional parody entries
     # $Parody = ($WebRequest -split '(?s)<a href="\/series\/.*?>(.*?)<\/a>')[1]?.Trim()
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Parody))
+    $Parody = [Net.WebUtility]::HtmlDecode($Parody)
+
+    Write-Output $Parody
 }

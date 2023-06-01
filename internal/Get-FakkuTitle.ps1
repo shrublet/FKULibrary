@@ -5,7 +5,8 @@ function Get-FakkuTitle {
         [String]$WebRequest
     )
 
-    $Title = ($WebRequest -split '(?s)title" content="(.*?)Hentai by.*">')[1]?.Trim()
+    $Title = ($WebRequest -split '(?s)"og:title" content="(.*?)Hentai by.*">')[1]?.Trim()
+    $Title = [Net.WebUtility]::HtmlDecode($Title)
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Title))
+    Write-Output $Title
 }

@@ -9,6 +9,7 @@ function Get-FakkuArtist {
     $ArtistDiv = ($WebRequest -split '(?s)<div.*?>Artist<\/div>(.*?)<\/div>')[1]
     $Artist = (($ArtistDiv | Select-String -Pattern '(?s)<a href="\/artists\/.*?>(.*?)<\/a>' -AllMatches).Matches |
         ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ', '
+    $Artist = [Net.WebUtility]::HtmlDecode($Artist)
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Artist))
+    Write-Output $Artist
 }

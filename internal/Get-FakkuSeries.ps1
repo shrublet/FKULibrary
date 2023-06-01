@@ -6,6 +6,7 @@ function Get-FakkuSeries {
     )
 
     $Series = ($WebRequest -split '(?s)<a href="\/collections\/.*?>(.*?)<\/a>')[1]?.Trim()
+    $Series = [Net.WebUtility]::HtmlDecode($Series)
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Series))
+    Write-Output $Series
 }

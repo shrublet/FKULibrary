@@ -9,6 +9,7 @@ function Get-FakkuMagazine {
     if (-Not $Group) {
         $Group = ($WebRequest -split '(?s)<a href="\/events\/.*?>(.*?)<\/a>')[1]?.Trim()
     }
+    $Group = [Net.WebUtility]::HtmlDecode($Group)
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Group))
+    Write-Output $Group
 }

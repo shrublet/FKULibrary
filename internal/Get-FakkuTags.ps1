@@ -7,6 +7,7 @@ function Get-FakkuTags {
 
     $Tags = (($WebRequest | Select-String -Pattern '(?s)<a href="\/tags\/.*?">(.*?)<' -AllMatches).Matches |
         ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ', '
+    $Tags = [Net.WebUtility]::HtmlDecode($Tags)
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Tags))
+    Write-Output $Tags
 }

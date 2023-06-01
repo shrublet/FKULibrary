@@ -6,6 +6,7 @@ function Get-FakkuPublisher {
     )
 
     $Publisher = ($WebRequest -split '(?s)<a href="\/publishers\/.*?>(.*?)<\/a>')[1]?.Trim()
+    $Publisher = [Net.WebUtility]::HtmlDecode($Publisher)
 
-    Write-Output ([Net.WebUtility]::HtmlDecode($Publisher))
+    Write-Output $Publisher
 }
