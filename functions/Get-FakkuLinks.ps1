@@ -1,13 +1,13 @@
 function Get-FakkuLinks {
     [CmdletBinding()]
     param (
-        [Parameter(Position = 0, ParameterSetName = 'Path')]
-        [String]$FilePath,
+        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Path')]
+        [IO.FileInfo]$FilePath,
 
-        [Parameter(ParameterSetName = 'Path')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Path')]
         [Switch]$Recurse,
 
-        [Parameter(Position = 0, ParameterSetName = 'Name')]
+        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Name')]
         [String]$Name
     )
 
@@ -21,14 +21,14 @@ function Get-FakkuLinks {
         switch ($PSCmdlet.ParameterSetName) {
             'Name' {
                 [PSCustomObject]@{
-                    Fakku = Get-FakkuUrl -Name $Name
+                    FAKKU = ConvertTo-FakkuUrl -Name $Name
                 }
             }
 
             'Path' {
                 foreach ($File in $Archives) {
                     [PSCustomObject]@{
-                        Fakku = Get-FakkuUrl -Name $File.BaseName
+                        FAKKU = ConvertTo-FakkuUrl -Name $File.BaseName
                     }
                 }
             }

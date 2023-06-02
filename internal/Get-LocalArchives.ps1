@@ -2,7 +2,7 @@ function Get-LocalArchives {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$FilePath,
+        [IO.FileInfo]$FilePath,
 
         [Parameter(Mandatory = $false)]
         [Switch]$Recurse
