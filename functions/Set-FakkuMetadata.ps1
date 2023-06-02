@@ -218,11 +218,11 @@ function Set-FakkuMetadata {
                 Write-Debug 'Moving archive...'
 
                 # Remove reserved characters
-                $Title = (Get-HtmlElement -Webrequest $WebRequest -Name 'title')`
+                $Title = (Get-FakkuElement -Webrequest $WebRequest -Name 'title')`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
-                $Series = (Get-HtmlElement -WebRequest $WebRequest -Name 'collections')`
+                $Series = (Get-FakkuElement -WebRequest $WebRequest -Name 'collections')`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
-                $Artist = ($Artist = Get-HtmlElement -WebRequest $WebRequest -Name 'artists').Split(',')[0]
+                $Artist = ($Artist = Get-FakkuElement -WebRequest $WebRequest -Name 'artists').Split(',')[0]
                 if (-not $Series) { $Series = $Title }
                 $SeriesPath = Join-Path -Path $Destination -ChildPath $Artist -AdditionalChildPath $Series.TrimEnd('.')
 
