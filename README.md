@@ -7,23 +7,23 @@ Scrape metadata from [FAKKU](https://www.fakku.net/) or [Panda](https://panda.ch
   <summary>Example results</summary>
 
   ```xml
-<ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Title>Sekigahara-san Has Something to Hide</Title>
-  <Series>Sekigahara-san Has Something to Hide</Series>
-  <Number>1</Number>
-  <Summary>Thrilling and agonizing! The start of a rich girl series!</Summary>
-  <Year>2020</Year>
-  <Month>01</Month>
-  <Writer>Tsukako</Writer>
-  <Publisher>FAKKU</Publisher>
-  <Tags>Bunny Girl, Busty, Cosplay, Deepthroat, Fishnets, Hentai, Light Hair, No Sex, Ojousama, Paizuri, Stockings, Story Arc, Uncensored</Tags>
-  <Genre>Original Work</Genre>
-  <Web>https://www.fakku.net/hentai/sekigahara-san-has-something-to-hide-english</Web>
-  <LanguageISO>en</LanguageISO>
-  <Manga>Yes</Manga>
-  <SeriesGroup>Comic Kairakuten BEAST 2020-01</SeriesGroup>
-  <AgeRating>Adults Only 18+</AgeRating>
-</ComicInfo>
+  <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Title>Sekigahara-san Has Something to Hide</Title>
+    <Series>Sekigahara-san Has Something to Hide</Series>
+    <Number>1</Number>
+    <Summary>Thrilling and agonizing! The start of a rich girl series!</Summary>
+    <Year>2020</Year>
+    <Month>01</Month>
+    <Writer>Tsukako</Writer>
+    <Publisher>FAKKU</Publisher>
+    <Tags>Bunny Girl, Busty, Cosplay, Deepthroat, Fishnets, Hentai, Light Hair, No Sex, Ojousama, Paizuri, Stockings, Story Arc, Uncensored</Tags>
+    <Genre>Original Work</Genre>
+    <Web>https://www.fakku.net/hentai/sekigahara-san-has-something-to-hide-english</Web>
+    <LanguageISO>en</LanguageISO>
+    <Manga>Yes</Manga>
+    <SeriesGroup>Comic Kairakuten BEAST 2020-01</SeriesGroup>
+    <AgeRating>Adults Only 18+</AgeRating>
+  </ComicInfo>
   ```
 ![Image of the series "Sekigahara-san Has Something to Hide" in Komga.](/docs/images/komga.jpg)
 
