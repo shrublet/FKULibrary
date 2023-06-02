@@ -36,8 +36,7 @@ function Get-HtmlElement {
     }
 
     $Values = (($WebRequest | Select-String -Pattern $Pattern -AllMatches).Matches |
-        Where-Object { $_ } |
-        ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ', '
+        Where-Object { $_ } | ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ', '
     $Values = [Net.WebUtility]::HtmlDecode($Values)
 
     Write-Output $Values
@@ -57,8 +56,9 @@ function Get-FakkuChapter {
     $Chapter = ($WebRequest -split "((?s)<a href=`"$Subdirectory`")")
 
     # Check if URL exists in body and slices there
-    if ($Chapter[1]) { $ChapterDiv = $Chapter[0] }
-
+    if ($Chapter[1]) {
+        $ChapterDiv = $Chapter[0]
+    }
     # This retrieves numbers from books and returns as a range (e.g. 1-10)
     # The RegEx is a bit inflexible and may be prone to breakage
     elseif ($WebRequest -match '(?s)>Chapters<\/h2>') {
@@ -68,7 +68,8 @@ function Get-FakkuChapter {
 
     # Retrieves last number found
     if ($ChapterDiv) {
-        $Number += ($ChapterDiv -split '(?s)<div class=".*?">(\d+)<\/div>')[-2]?.Trim()
+        $Number += ($ChapterDiv | Select-String -Pattern '(?s)<div class=".*?">(\d+)<\/div>' -AllMatches).Matches |
+            ForEach-Object { ($_.Groups[1].Value).Trim() } | Select-Object -Last 1
     }
 
     Write-Output $Number
