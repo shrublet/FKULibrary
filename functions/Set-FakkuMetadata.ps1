@@ -13,20 +13,14 @@ function Set-FakkuMetadata {
         [Parameter(Mandatory = $false)]
         [Int32]$Sleep,
 
+        [Parameter(Mandatory = $true, ParameterSetName = 'Batch')]
+        [IO.FileInfo]$InputFile,
+
         [Parameter(Mandatory = $false)]
         [IO.FileInfo]$UrlFile,
 
         [Parameter(Mandatory = $false)]
         [IO.DirectoryInfo]$Destination,
-
-        [Parameter(Mandatory = $true, ParameterSetName = 'Batch')]
-        [IO.FileInfo]$InputFile,
-
-        [Parameter(Mandatory = $false)]
-        [IO.DirectoryInfo]$DriverPath = (Get-Item $PSScriptRoot).Parent,
-
-        [Parameter(Mandatory = $false)]
-        [IO.DirectoryInfo]$ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath 'profiles'),
 
         [Parameter(Mandatory = $false)]
         [Switch]$Safe,
@@ -61,6 +55,8 @@ function Set-FakkuMetadata {
     }
 
     $ProgressPreference = 'SilentlyContinue'
+    $DriverPath = (Get-Item $PSScriptRoot).Parent
+    $ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath 'profiles')
 
     Switch ($PSCmdlet.ParameterSetName) {
         'File' {
@@ -139,7 +135,7 @@ function Set-FakkuMetadata {
 
             Default {
                 $UriLocation = 'fakku'
-                $NewUrl = Get-FakkuUrl -Name $WorkName
+                $NewUrl = ConvertTo-FakkuUrl -Name $WorkName
             }
         }
 
@@ -149,14 +145,13 @@ function Set-FakkuMetadata {
 
         # Attempt with Invoke-WebRequest and match URL
         try {
-            <# NOTE:
-            There's a "bug" that will erroneously label chapter number if volumes in a series are publicly obscured.
-            The only way I can think of to avoid this is to force requesting through Selenium if a series is found.
-            I've decided to not throw an error by default and implement the parameter "Safe" instead which will force
-            the use of Selenium. #>
-            if ($Safe) { throw }
-
+            # NOTE:
+            # There's a "bug" that will erroneously label chapter number if chapters in a series are publicly obscured.
+            # The only way I can think of to avoid this is to force requesting through Selenium if a series is found.
+            # I've decided to not throw an error by default and implement the parameter "Safe" instead which will force
+            # the use of Selenium.
             $WebRequest = (Invoke-WebRequest -Uri $NewUrl -Method Get -Verbose:$false).Content
+            if ($Safe -and (Get-FakkuChapter -WebRequest $WebRequest -Url $NewUrl)) { throw }
             $Xml = Get-MetadataXML -WebRequest $WebRequest -Url $NewUrl -Provider $UriLocation
             Set-MetadataXML -FilePath $File.FullName -XmlPath $XmlPath -Content $Xml
         }
@@ -227,9 +222,9 @@ function Set-FakkuMetadata {
                 # Remove reserved characters
                 $Title = (Get-FakkuTitle -WebRequest $WebRequest)`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
-                $Series = (Get-FakkuSeries -WebRequest $WebRequest)`
+                $Series = (Get-HtmlElement -WebRequest $WebRequest -Name 'collections')`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
-                $Artist = (Get-FakkuArtist -WebRequest $WebRequest).Split(',')[0]
+                $Artist = ($Artist = Get-MultipleElements -WebRequest ($WebRequest -split '(?s)<div.*?>Artist<\/div>(.*?)<\/div>')[1] -Name 'artists').Split(',')[0]
                 if (-not $Series) { $Series = $Title }
                 $SeriesPath = Join-Path -Path $Destination -ChildPath $Artist -AdditionalChildPath $Series.TrimEnd('.')
 

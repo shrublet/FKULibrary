@@ -12,18 +12,21 @@ function Get-MetadataXML {
         [String]$Provider = 'fakku'
     )
 
-    switch ($Provider) {
+    Switch ($Provider) {
         'fakku' {
             $Title = Get-FakkuTitle -Webrequest $WebRequest
-            $Series = Get-FakkuSeries -WebRequest $WebRequest
+            $Series = Get-HtmlElement -WebRequest $WebRequest -Name 'collections'
             $SeriesNumber = Get-FakkuChapter -WebRequest $WebRequest -Url $Url
-            $SeriesGroup = Get-FakkuMagazine -WebRequest $WebRequest
+            $SeriesGroup = Get-HtmlElement -WebRequest $WebRequest -Name 'magazines'
+            if (-not $SeriesGroup) { $SeriesGroup = Get-HtmlElement -WebRequest $WebRequest -Name 'events' }
             $Summary = Get-FakkuSummary -WebRequest $WebRequest
-            $Artist = Get-FakkuArtist -WebRequest $WebRequest
-            $Circle = Get-FakkuCircle -WebRequest $WebRequest
-            $Publisher = Get-FakkuPublisher -WebRequest $WebRequest
-            $Tags = Get-FakkuTags -WebRequest $WebRequest
-            $Parody = Get-FakkuParody -WebRequest $WebRequest
+            # Separates div to avoid grabbing unrelated artists
+            $ArtistDiv = ($WebRequest -split '(?s)<div.*?>Artist<\/div>(.*?)<\/div>')[1]
+            $Artist = Get-MultipleElements -WebRequest $ArtistDiv -Name 'artists'
+            $Circle = Get-HtmlElement -WebRequest $WebRequest -Name 'circles'
+            $Publisher = Get-HtmlElement -WebRequest $WebRequest -Name 'publishers'
+            $Tags = Get-MultipleElements -WebRequest $WebRequest -Name 'tags'
+            $Parody = Get-MultipleElements -WebRequest $WebRequest -Name 'series'
         }
 
         'panda' {

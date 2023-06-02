@@ -1,4 +1,4 @@
-function Get-FakkuUrl {
+function ConvertTo-FakkuUrl {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
