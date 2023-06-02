@@ -14,19 +14,17 @@ function Get-MetadataXML {
 
     Switch ($Provider) {
         'fakku' {
-            $Title = Get-FakkuTitle -Webrequest $WebRequest
+            $Title = Get-HtmlElement -Webrequest $WebRequest -Name 'title'
             $Series = Get-HtmlElement -WebRequest $WebRequest -Name 'collections'
             $SeriesNumber = Get-FakkuChapter -WebRequest $WebRequest -Url $Url
             $SeriesGroup = Get-HtmlElement -WebRequest $WebRequest -Name 'magazines'
             if (-not $SeriesGroup) { $SeriesGroup = Get-HtmlElement -WebRequest $WebRequest -Name 'events' }
-            $Summary = Get-FakkuSummary -WebRequest $WebRequest
-            # Separates div to avoid grabbing unrelated artists
-            $ArtistDiv = ($WebRequest -split '(?s)<div.*?>Artist<\/div>(.*?)<\/div>')[1]
-            $Artist = Get-MultipleElements -WebRequest $ArtistDiv -Name 'artists'
+            $Summary = Get-HtmlElement -WebRequest $WebRequest -Name 'description'
+            $Artist = Get-HtmlElement -WebRequest $WebRequest -Name 'artists'
             $Circle = Get-HtmlElement -WebRequest $WebRequest -Name 'circles'
             $Publisher = Get-HtmlElement -WebRequest $WebRequest -Name 'publishers'
-            $Tags = Get-MultipleElements -WebRequest $WebRequest -Name 'tags'
-            $Parody = Get-MultipleElements -WebRequest $WebRequest -Name 'series'
+            $Tags = Get-HtmlElement -WebRequest $WebRequest -Name 'tags'
+            $Parody = Get-HtmlElement -WebRequest $WebRequest -Name 'series'
         }
 
         'panda' {

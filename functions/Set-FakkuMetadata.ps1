@@ -32,10 +32,7 @@ function Set-FakkuMetadata {
         [Switch]$Incognito,
 
         [Parameter(Mandatory = $false)]
-        [Switch]$Log,
-
-        [Parameter(Mandatory = $false)]
-        [IO.FileInfo]$LogPath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent - ChildPath 'fakku_library.log')
+        [Switch]$Log
     )
 
     function Write-FakkuLog {
@@ -57,6 +54,7 @@ function Set-FakkuMetadata {
     $ProgressPreference = 'SilentlyContinue'
     $DriverPath = (Get-Item $PSScriptRoot).Parent
     $ProfilePath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent -ChildPath 'profiles')
+    $LogPath = (Join-Path -Path (Get-Item $PSScriptRoot).Parent - ChildPath 'fakku_library.log')
 
     Switch ($PSCmdlet.ParameterSetName) {
         'File' {
@@ -220,11 +218,11 @@ function Set-FakkuMetadata {
                 Write-Debug 'Moving archive...'
 
                 # Remove reserved characters
-                $Title = (Get-FakkuTitle -WebRequest $WebRequest)`
+                $Title = (Get-HtmlElement -Webrequest $WebRequest -Name 'title')`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
                 $Series = (Get-HtmlElement -WebRequest $WebRequest -Name 'collections')`
                     -replace '\\|\/|\||:|\*|\?|"|<|>', ''
-                $Artist = ($Artist = Get-MultipleElements -WebRequest ($WebRequest -split '(?s)<div.*?>Artist<\/div>(.*?)<\/div>')[1] -Name 'artists').Split(',')[0]
+                $Artist = ($Artist = Get-HtmlElement -WebRequest $WebRequest -Name 'artists').Split(',')[0]
                 if (-not $Series) { $Series = $Title }
                 $SeriesPath = Join-Path -Path $Destination -ChildPath $Artist -AdditionalChildPath $Series.TrimEnd('.')
 

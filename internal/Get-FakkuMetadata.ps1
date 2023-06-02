@@ -5,67 +5,42 @@ function Get-HtmlElement {
         [String]$WebRequest,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet(
+            'title',
+            'description',
+            'collections',
+            'magazines',
+            'events',
+            'artists',
+            'circles',
+            'publishers',
+            'tags',
+            'series')]
         [String]$Name
     )
 
-    # Used for the following -
-    # Circle
-    # Magazine/Event
-    # Publisher
-    # Series/Collection
-    $Value = ($WebRequest -split "(?s)<a href=`"\/$Name\/.*?>(.*?)<\/a>")[1]?.Trim()
-    $Value = [Net.WebUtility]::HtmlDecode($Value)
+    $Pattern = "(?s)<a href=`"\/$Name\/.*?>(.*?)<\/a>"
+    Switch ($Name) {
+        'title' {
+            $Pattern = '(?s)"og:title" content="(.*?)Hentai by.*">'
+        }
 
-    Write-Output $Value
-}
+        'description' {
+            $Pattern = '(?s)"og:description" content="(.*?)">'
+        }
 
-function Get-MultipleElements {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [String]$WebRequest,
+        'artists' {
+            # Separates div to avoid grabbing unrelated artists
+            $WebRequest = ($WebRequest -split '(?s)<div.*?>Artist<\/div>(.*?)<\/div>')[1]
+        }
+    }
 
-        [Parameter(Mandatory = $true)]
-        [String]$Name
-    )
-
-    # Used for the following -
-    # Artist
-    # Tags
-    # Parody
-    $Values = (($WebRequest | Select-String -Pattern "(?s)<a href=`"\/$Name\/.*?>(.*?)<\/a>" -AllMatches).Matches |
+    $Values = (($WebRequest | Select-String -Pattern $Pattern -AllMatches).Matches |
+        Where-Object { $_ } |
         ForEach-Object { ($_.Groups[1].Value).Trim() }) -join ', '
     $Values = [Net.WebUtility]::HtmlDecode($Values)
 
     Write-Output $Values
-}
-
-function Get-FakkuTitle {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [String]$WebRequest
-    )
-
-    $Title = ($WebRequest -split '(?s)"og:title" content="(.*?)Hentai by.*">')[1]?.Trim()
-    $Title = [Net.WebUtility]::HtmlDecode($Title)
-
-    Write-Output $Title
-}
-
-function Get-FakkuSummary {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [String]$WebRequest
-    )
-
-    $Summary = ((($WebRequest -split '(?s)"og:description" content="(.*?)">')[1]`
-        -split '(?s)Paperback ships|Paperback Release|Chapters will|Downloads will')[0]`
-        -split '(?s)This content is no longer available for purchase.')?.Trim()
-    $Summary = [Net.WebUtility]::HtmlDecode($Summary)
-
-    Write-Output $Summary
 }
 
 function Get-FakkuChapter {
