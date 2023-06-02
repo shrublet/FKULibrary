@@ -14,17 +14,17 @@ function Get-MetadataXML {
 
     Switch ($Provider) {
         'fakku' {
-            $Title = Get-HtmlElement -Webrequest $WebRequest -Name 'title'
-            $Series = Get-HtmlElement -WebRequest $WebRequest -Name 'collections'
+            $Title = Get-FakkuElement -Webrequest $WebRequest -Name 'title'
+            $Series = Get-FakkuElement -WebRequest $WebRequest -Name 'collections'
             $SeriesNumber = Get-FakkuChapter -WebRequest $WebRequest -Url $Url
-            $SeriesGroup = Get-HtmlElement -WebRequest $WebRequest -Name 'magazines'
-            if (-not $SeriesGroup) { $SeriesGroup = Get-HtmlElement -WebRequest $WebRequest -Name 'events' }
-            $Summary = Get-HtmlElement -WebRequest $WebRequest -Name 'description'
-            $Artist = Get-HtmlElement -WebRequest $WebRequest -Name 'artists'
-            $Circle = Get-HtmlElement -WebRequest $WebRequest -Name 'circles'
-            $Publisher = Get-HtmlElement -WebRequest $WebRequest -Name 'publishers'
-            $Tags = Get-HtmlElement -WebRequest $WebRequest -Name 'tags'
-            $Parody = Get-HtmlElement -WebRequest $WebRequest -Name 'series'
+            $SeriesGroup = Get-FakkuElement -WebRequest $WebRequest -Name 'magazines'
+            if (-not $SeriesGroup) { $SeriesGroup = Get-FakkuElement -WebRequest $WebRequest -Name 'events' }
+            $Summary = Get-FakkuElement -WebRequest $WebRequest -Name 'description'
+            $Artist = Get-FakkuElement -WebRequest $WebRequest -Name 'artists'
+            $Circle = Get-FakkuElement -WebRequest $WebRequest -Name 'circles'
+            $Publisher = Get-FakkuElement -WebRequest $WebRequest -Name 'publishers'
+            $Tags = Get-FakkuElement -WebRequest $WebRequest -Name 'tags'
+            $Parody = Get-FakkuElement -WebRequest $WebRequest -Name 'series'
         }
 
         'panda' {

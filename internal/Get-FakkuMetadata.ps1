@@ -1,4 +1,4 @@
-function Get-HtmlElement {
+function Get-FakkuElement {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
