@@ -1,32 +1,31 @@
-# FAKKU Library
+# F! Library
 
 Scrape metadata from [FAKKU](https://www.fakku.net/) or [Panda](https://panda.chaika.moe/) and build your own local FAKKU library with Komga or any other CMS that supports `ComicInfo.xml` metadata.
 
 <details>
 
- <summary>Example results</summary>
+  <summary>Example results</summary>
 
- ```xml
-<?xml version="1.0"?>
+  ```xml
 <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Title>Bare Girl</Title>
-  <Series>Bare Girl</Series>
+  <Title>Sekigahara-san Has Something to Hide</Title>
+  <Series>Sekigahara-san Has Something to Hide</Series>
   <Number>1</Number>
-  <Summary>Don't stare at me… you make me wanna strip…</Summary>
-  <Year>2017</Year>
-  <Month>03</Month>
+  <Summary>Thrilling and agonizing! The start of a rich girl series!</Summary>
+  <Year>2020</Year>
+  <Month>01</Month>
   <Writer>Tsukako</Writer>
   <Publisher>FAKKU</Publisher>
-  <Tags>Blowjob, Booty, Busty, Cosplay, Creampie, Cunnilingus, Hentai, Light Hair, Lingerie, Slice of Life, Stockings, Uncensored, Vanilla</Tags>
+  <Tags>Bunny Girl, Busty, Cosplay, Deepthroat, Fishnets, Hentai, Light Hair, No Sex, Ojousama, Paizuri, Stockings, Story Arc, Uncensored</Tags>
   <Genre>Original Work</Genre>
-  <Web>https://www.fakku.net/hentai/bare-girl-english</Web>
+  <Web>https://www.fakku.net/hentai/sekigahara-san-has-something-to-hide-english</Web>
   <LanguageISO>en</LanguageISO>
   <Manga>Yes</Manga>
-  <SeriesGroup>Comic Kairakuten BEAST 2017-03</SeriesGroup>
+  <SeriesGroup>Comic Kairakuten BEAST 2020-01</SeriesGroup>
   <AgeRating>Adults Only 18+</AgeRating>
 </ComicInfo>
- ```
-![Image of the manga "Bare Girl" in Komga tagged with this tool.](/docs/images/komga.jpeg)
+  ```
+![Image of the series "Sekigahara-san Has Something to Hide" in Komga.](/docs/images/komga.jpg)
 
 </details>
 
@@ -76,7 +75,7 @@ git clone https://github.com/shrublet/FKULibrary.git
 
 #### Setup Selenium WebDriver (optional)
 
-- It's highly recommneded to setup and download Selenium as well to access publicly blocked pages. Download the WebDriver for your browser and the Selenium for C# package (linked below). Extract the WebDriver executable (for Google Chrome, this would be `chromedriver.exe`) and `WebDriver.dll` from the raw `.nupkg` package to either the root of your extracted repository (i.e. `.\fakku-meta-scraper-main`) or a directory of your choice.
+- It's highly recommneded to setup and download Selenium as well to access publicly blocked pages. Download the WebDriver for your browser and the Selenium for C# package (linked below). Extract the WebDriver executable (for Google Chrome, this would be `chromedriver.exe`) and `WebDriver.dll` from the raw `.nupkg` package to the root of your extracted repository (i.e. `.\fakku-meta-scraper-main`).
 
   - > <sub> ⚠️ The `WebDriver.dll` is packaged inside `.nupkg` file under `.\lib\net48\` and can be opened via any file archiver. Most Windows PCs should have .NET 4.8, so this is the recommended library. If the WebDriver isn't working as expected, ensure the version matches with your browser or try updating your browser/downgrading the WebDriver.</sub>
 
@@ -117,8 +116,6 @@ Set-FakkuMetadata
 [`-InputFile`](#-inputfile)
 [`-Sleep`](#-sleep)
 [`-Destination`](#-destination)
-[`-DriverPath`](#-driverpath)
-[`-ProfilePath`](#-profilepath)
 [`-Safe`](#-safe)
 [`-Headless`](#-headless)
 [`-Incognito`](#-incognito)
@@ -128,15 +125,13 @@ Set-FakkuMetadata
 #### Retrieve and write metadata to the console
 
 ```sh
-Get-FakkuMetadata
+Show-FakkuMetadata
 ```
 
 ###### Available parameters
 
 [`-Name`](#-name)
 [`-Url`](#-url)
-[`-DriverPath`](#-driverpath)
-[`-ProfilePath`](#-profilepath)
 [`-Safe`](#-safe)
 [`-Headless`](#-headless)
 [`-Incognito`](#-incognito)
@@ -187,16 +182,16 @@ Set-FakkuMetadata -InputFile "C:\path\to\list\of\archives.txt"
 Set-FakkuMetadata "C:\path\to\files" -UrlFile "C:\path\to\list\of\urls.txt"
 ```
 
-#### Get metadata from a FAKKU link
+#### Get and display metadata from a FAKKU link
 
 ```sh
-Get-FakkuMetadata https://www.fakku.net/hentai/Bare-Girl-english
+Show-FakkuMetadata https://www.fakku.net/hentai/Bare-Girl-english
 ```
 
-#### Get metadata from a title
+#### Get and display metadata from a title
 
 ```sh
-Get-FakkuMetadata "Bare Girl"
+Show-FakkuMetadata "Bare Girl"
 ```
 
 
@@ -216,23 +211,17 @@ Get-FakkuMetadata "Bare Girl"
 ##### `-Url`
 > <sub>FAKKU/Panda URL to pull metadata from</sub>
 
-##### `-UrlFile`
-> <sub>Text file with FAKKU/Panda URLs to use for tagging (compatible with both `-FilePath` and `-InputFile`)</sub>
+##### `-Sleep`
+> <sub>Time to sleep between scrapes (default: `0`)</sub>
 
 ##### `-InputFile`
 > <sub>Text file with directories to tag</sub>
 
-##### `-Sleep`
-> <sub>Time to sleep between scrapes (default: `0`)</sub>
+##### `-UrlFile`
+> <sub>Text file with FAKKU/Panda URLs to use for tagging (compatible with both `-FilePath` and `-InputFile`)</sub>
 
 ##### `-Destination`
 > <sub>Path to move completed archives to (default: `None`)</sub>
-
-##### `-DriverPath`
-> <sub>Path to `WebDriver.dll` and `driver.exe` (default: `.`)</sub>
-
-##### `-ProfilePath`
-> <sub>Path to save browser profiles to (default: `.\profiles`)</sub>
 
 ##### `-Safe`
 > <sub>Force the use of Selenium to scrape metadata to avoid edge-case metadata issues (default: `False`)</sub>
