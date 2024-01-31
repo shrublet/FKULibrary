@@ -76,14 +76,10 @@ git clone https://github.com/shrublet/FKULibrary.git
 #### Setup Selenium WebDriver (optional)
 
 - It's highly recommneded to setup and download Selenium as well to access publicly blocked pages. Download the WebDriver for your browser and the Selenium for C# package (linked below). Extract the WebDriver executable (for Google Chrome, this would be `chromedriver.exe`) and `WebDriver.dll` from the raw `.nupkg` package to the root of your extracted repository (i.e. `.\fakku-meta-scraper-main`).
-
-  - > <sub> ⚠️ The `WebDriver.dll` is packaged inside `.nupkg` file under `.\lib\net48\` and can be opened via any file archiver. Most Windows PCs should have .NET 4.8, so this is the recommended library. If the WebDriver isn't working as expected, ensure the version matches with your browser or try updating your browser/downgrading the WebDriver.</sub>
-
-  - [Browser WebDriver executables](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/#quick-reference) [^1]
-
-  - [Selenium WebDriver for C#](https://www.nuget.org/api/v2/package/Selenium.WebDriver)
-
-[^1]: Currently only supports Google Chrome, Microsoft Edge, and Firefox.
+  - <sub>[Browser WebDriver executables](https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location/#download-the-driver)</sub>
+  - <sub>[Selenium WebDriver for C#](https://www.nuget.org/api/v2/package/Selenium.WebDriver)</sub>
+> [!TIP]
+> <sub>The `WebDriver.dll` is packaged inside the `.nupkg` file under `.\lib\net48\` and can be opened via any file archiver. Most Windows PCs should have .NET 4.8, so this is the recommended library. If the WebDriver isn't working as expected, ensure the version matches with your browser or try updating your browser/downgrading the WebDriver.</sub>
 
 #### Import the module
 
